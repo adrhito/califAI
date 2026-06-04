@@ -8,7 +8,7 @@ import { COMMON_TIMEZONES } from '../../lib/utils/date';
 
 export default function App() {
   const [apiKey, setApiKey] = useState('');
-  const [provider, setProvider] = useState<'openai' | 'gemini'>('gemini');
+  const [provider, setProvider] = useState<'openai' | 'gemini' | 'local'>('local');
   const [defaultTimezone, setDefaultTimezone] = useState('America/Los_Angeles');
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -51,45 +51,59 @@ export default function App() {
         <Select
           label="AI Provider"
           value={provider}
-          onChange={(e) => setProvider(e.target.value as 'openai' | 'gemini')}
+          onChange={(e) => setProvider(e.target.value as 'openai' | 'gemini' | 'local')}
           options={[
-            { value: 'gemini', label: 'Google Gemini 2.5 Flash (FREE - Recommended)' },
+            { value: 'local', label: 'Local OCR (FREE - No API Key - Recommended)' },
+            { value: 'gemini', label: 'Google Gemini 2.5 Flash (FREE - Best Quality)' },
             { value: 'openai', label: 'OpenAI GPT-4o-mini (Ultra-cheap)' }
           ]}
           fullWidth
         />
 
-        <Input
-          label={provider === 'gemini' ? 'Gemini API Key' : 'OpenAI API Key'}
-          type="password"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          helperText={
-            provider === 'gemini'
-              ? 'Completely free: 1 million tokens/month (~thousands of captures)'
-              : 'Ultra-cheap: ~$0.002 per capture (500x cheaper than GPT-4o)'
-          }
-          fullWidth
-          placeholder={provider === 'gemini' ? 'AIza... or AQ.Ab...' : 'sk-proj-...'}
-        />
-
-        <div className="options-help text-sm text-muted">
-          <p>Don't have an API key?</p>
-          <a
-            href={
+        {provider !== 'local' && (
+          <Input
+            label={provider === 'gemini' ? 'Gemini API Key' : 'OpenAI API Key'}
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            helperText={
               provider === 'gemini'
-                ? 'https://aistudio.google.com/app/apikey'
-                : 'https://platform.openai.com/api-keys'
+                ? 'Completely free: 1 million tokens/month (~thousands of captures)'
+                : 'Ultra-cheap: ~$0.002 per capture (500x cheaper than GPT-4o)'
             }
-            target="_blank"
-            rel="noopener noreferrer"
-            className="options-link"
-          >
-            {provider === 'gemini'
-              ? 'Get a FREE key at Google AI Studio →'
-              : 'Create one at OpenAI Platform →'}
-          </a>
-        </div>
+            fullWidth
+            placeholder={provider === 'gemini' ? 'AIza... or AQ.Ab...' : 'sk-proj-...'}
+          />
+        )}
+
+        {provider === 'local' && (
+          <div className="text-sm text-muted" style={{ marginTop: 'var(--space-3)' }}>
+            <p>✓ No API key needed</p>
+            <p>✓ Runs completely in your browser</p>
+            <p>✓ Works offline and is 100% private</p>
+            <p>✓ Uses Tesseract.js OCR + date parsing</p>
+          </div>
+        )}
+
+        {provider !== 'local' && (
+          <div className="options-help text-sm text-muted">
+            <p>Don't have an API key?</p>
+            <a
+              href={
+                provider === 'gemini'
+                  ? 'https://aistudio.google.com/app/apikey'
+                  : 'https://platform.openai.com/api-keys'
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="options-link"
+            >
+              {provider === 'gemini'
+                ? 'Get a FREE key at Google AI Studio →'
+                : 'Create one at OpenAI Platform →'}
+            </a>
+          </div>
+        )}
       </Card>
 
       <Card className="options-section">
