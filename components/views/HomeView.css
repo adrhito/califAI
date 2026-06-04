@@ -8,6 +8,38 @@
 
 .home-header {
   text-align: center;
+  position: relative;
+}
+
+.settings-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--surface-variant);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-md);
+  font-size: 18px;
+  cursor: pointer;
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: all var(--transition-base);
+  color: var(--on-surface);
+  font-weight: 500;
+}
+
+.settings-button:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-button::after {
+  content: 'Settings';
+  font-size: var(--font-size-sm);
 }
 
 .home-title {

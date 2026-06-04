@@ -12,10 +12,11 @@ export default defineConfig({
       'storage'
     ],
     host_permissions: [
-      'https://generativelanguage.googleapis.com/*'
+      'https://generativelanguage.googleapis.com/*',
+      'https://api.openai.com/*'
     ],
     oauth2: {
-      client_id: '1032616596177-vhtiqvnhafn63pbkqhp5itrkk28ht994.apps.googleusercontent.com',
+      client_id: '29128209703-m2inv6blj306tqn2cbpavsuffu92g2et.apps.googleusercontent.com',
       scopes: [
         'https://www.googleapis.com/auth/calendar.events',
         'https://www.googleapis.com/auth/calendar.readonly'

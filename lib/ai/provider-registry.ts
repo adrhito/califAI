@@ -1,14 +1,16 @@
 // Provider registry for swappable AI providers
 
 import { AIProvider } from './types';
+import { OpenAIProvider } from './openai-provider';
 import { GeminiProvider } from './gemini-provider';
 
 const providers = new Map<string, AIProvider>();
 
 // Register default providers
+providers.set('openai', new OpenAIProvider());
 providers.set('gemini', new GeminiProvider());
 
-export function getProvider(name: string = 'gemini'): AIProvider {
+export function getProvider(name: string = 'openai'): AIProvider {
   const provider = providers.get(name);
   if (!provider) {
     throw new Error(`Provider '${name}' not found`);

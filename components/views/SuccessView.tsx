@@ -4,12 +4,20 @@ import { useAppState } from '../../hooks/useAppState';
 import './SuccessView.css';
 
 export default function SuccessView() {
-  const { createdEventUrl, reset } = useAppState();
+  const { createdEventUrl, createdEventUrls, reset } = useAppState();
 
-  function handleViewEvent() {
-    if (createdEventUrl) {
-      chrome.tabs.create({ url: createdEventUrl });
+  const isMultiple = createdEventUrls.length > 0;
+  const eventCount = isMultiple ? createdEventUrls.length : 1;
+
+  function handleViewEvent(url?: string) {
+    const urlToOpen = url || createdEventUrl;
+    if (urlToOpen) {
+      chrome.tabs.create({ url: urlToOpen });
     }
+  }
+
+  function handleViewCalendar() {
+    chrome.tabs.create({ url: 'https://calendar.google.com' });
   }
 
   function handleAddAnother() {
@@ -26,20 +34,28 @@ export default function SuccessView() {
           </svg>
         </div>
 
-        <h2 className="success-title">Event Added!</h2>
+        <h2 className="success-title">
+          {isMultiple ? `${eventCount} Events Added!` : 'Event Added!'}
+        </h2>
         <p className="success-message text-muted">
-          Your event has been successfully added to Google Calendar
+          {isMultiple
+            ? `Your ${eventCount} events have been successfully added to Google Calendar`
+            : 'Your event has been successfully added to Google Calendar'}
         </p>
 
         <Card className="success-card">
           <div className="success-actions">
-            {createdEventUrl && (
-              <Button variant="outline" onClick={handleViewEvent} fullWidth>
+            {isMultiple ? (
+              <Button variant="outline" onClick={handleViewCalendar} fullWidth>
+                View Calendar
+              </Button>
+            ) : createdEventUrl ? (
+              <Button variant="outline" onClick={() => handleViewEvent()} fullWidth>
                 View in Calendar
               </Button>
-            )}
+            ) : null}
             <Button onClick={handleAddAnother} fullWidth>
-              Add Another Event
+              Add More Events
             </Button>
           </div>
         </Card>

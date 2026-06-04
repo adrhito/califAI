@@ -11,9 +11,11 @@ interface AppStateStore extends AppState {
   setEvents: (events: CalifyEvent[]) => void;
   setCurrentEvent: (event: CalifyEvent | null) => void;
   setSelectedEventIndex: (index: number | null) => void;
+  setSelectedEventIndices: (indices: number[]) => void;
   setError: (error: AppState['error']) => void;
   setLoading: (loading: AppState['loading']) => void;
   setCreatedEventUrl: (url: string) => void;
+  setCreatedEventUrls: (urls: string[]) => void;
   reset: () => void;
   // Hydrate from storage
   hydrate: () => Promise<void>;
@@ -42,6 +44,11 @@ export const useAppState = create<AppStateStore>((set, get) => ({
     saveAppState(get());
   },
 
+  setSelectedEventIndices: (selectedEventIndices) => {
+    set({ selectedEventIndices });
+    saveAppState(get());
+  },
+
   setError: (error) => {
     set({ error });
     saveAppState(get());
@@ -54,6 +61,11 @@ export const useAppState = create<AppStateStore>((set, get) => ({
 
   setCreatedEventUrl: (url) => {
     set({ createdEventUrl: url });
+    saveAppState(get());
+  },
+
+  setCreatedEventUrls: (urls) => {
+    set({ createdEventUrls: urls });
     saveAppState(get());
   },
 

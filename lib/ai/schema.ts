@@ -25,16 +25,22 @@ export const ConfidenceSchema = z.object({
 
 export const CalifyEventSchema = z.object({
   title: z.string().min(1),
-  description: z.string().optional(),
-  location: z.string().optional(),
+  description: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
   startDate: z.string(), // ISO datetime
   endDate: z.string(),   // ISO datetime
   timezone: z.string(),
   isAllDay: z.boolean(),
-  recurrence: RecurrenceRuleSchema.optional(),
-  reminders: z.array(ReminderSchema).optional(),
+  recurrence: RecurrenceRuleSchema.nullable().optional(),
+  reminders: z.array(ReminderSchema).nullable().optional(),
   confidence: ConfidenceSchema.optional()
-});
+}).transform(obj => ({
+  ...obj,
+  description: obj.description || undefined,
+  location: obj.location || undefined,
+  recurrence: obj.recurrence || undefined,
+  reminders: obj.reminders || undefined
+}));
 
 export const AIExtractionResponseSchema = z.object({
   events: z.array(CalifyEventSchema),

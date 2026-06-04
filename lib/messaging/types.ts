@@ -8,6 +8,7 @@ export type BackgroundMessage =
   | { type: 'CAPTURE_AND_EXTRACT' }
   | { type: 'GET_CALENDARS' }
   | { type: 'CREATE_EVENT'; event: CalifyEvent; calendarId: string }
+  | { type: 'CREATE_EVENTS'; events: CalifyEvent[]; calendarId: string }
   | { type: 'AUTHORIZE_GOOGLE' }
   | { type: 'CHECK_GOOGLE_AUTH' };
 
@@ -16,6 +17,7 @@ export type BackgroundResponse<T extends BackgroundMessage['type']> =
   T extends 'CAPTURE_AND_EXTRACT' ? AIExtractionResponse :
   T extends 'GET_CALENDARS' ? { calendars: GoogleCalendar[] } :
   T extends 'CREATE_EVENT' ? { eventId: string; eventUrl: string } :
+  T extends 'CREATE_EVENTS' ? { results: Array<{ eventId: string; eventUrl: string; title: string }> } :
   T extends 'AUTHORIZE_GOOGLE' ? { success: boolean } :
   T extends 'CHECK_GOOGLE_AUTH' ? { authorized: boolean } :
   never;

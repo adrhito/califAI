@@ -54,9 +54,16 @@ export default function HomeView() {
     }
   }
 
+  function handleOpenSettings() {
+    chrome.runtime.openOptionsPage();
+  }
+
   return (
     <div className="home-view">
       <div className="home-header">
+        <button className="settings-button" onClick={handleOpenSettings} title="Settings">
+          ⚙️
+        </button>
         <h1 className="home-title">CalifAI</h1>
         <p className="home-subtitle">
           Capture calendar events from any webpage and add them to Google Calendar

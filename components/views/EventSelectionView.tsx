@@ -8,16 +8,28 @@ import { format } from 'date-fns';
 import './EventSelectionView.css';
 
 export default function EventSelectionView() {
-  const { events, setCurrentEvent, setView } = useAppState();
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const { events, setCurrentEvent, setSelectedEventIndices, setView } = useAppState();
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
-  function handleSelectEvent(index: number) {
-    setSelectedIndex(index);
+  function handleToggleEvent(index: number) {
+    const newSelected = new Set(selectedIndices);
+    if (newSelected.has(index)) {
+      newSelected.delete(index);
+    } else {
+      newSelected.add(index);
+    }
+    setSelectedIndices(newSelected);
   }
 
   function handleContinue() {
-    if (selectedIndex !== null) {
-      setCurrentEvent(events[selectedIndex]);
+    if (selectedIndices.size === 1) {
+      // Single event - go to review view
+      const index = Array.from(selectedIndices)[0];
+      setCurrentEvent(events[index]);
+      setView('review');
+    } else if (selectedIndices.size > 1) {
+      // Multiple events - save indices and go to review
+      setSelectedEventIndices(Array.from(selectedIndices));
       setView('review');
     }
   }
@@ -44,7 +56,7 @@ export default function EventSelectionView() {
       <div className="selection-header">
         <h2 className="selection-title">Multiple Events Found</h2>
         <p className="selection-subtitle text-muted">
-          Select which event you'd like to add to your calendar
+          Select one or more events to add to your calendar
         </p>
       </div>
 
@@ -52,9 +64,9 @@ export default function EventSelectionView() {
         {events.map((event, index) => (
           <Card
             key={index}
-            className={`selection-card ${selectedIndex === index ? 'selection-card-selected' : ''}`}
+            className={`selection-card ${selectedIndices.has(index) ? 'selection-card-selected' : ''}`}
             hoverable
-            onClick={() => handleSelectEvent(index)}
+            onClick={() => handleToggleEvent(index)}
           >
             <div className="selection-card-header">
               <h3 className="selection-card-title">{event.title}</h3>
@@ -78,7 +90,7 @@ export default function EventSelectionView() {
               </div>
             )}
 
-            {selectedIndex === index && (
+            {selectedIndices.has(index) && (
               <div className="selection-card-checkmark">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="12" cy="12" r="10" fill="var(--primary)" />
@@ -93,10 +105,14 @@ export default function EventSelectionView() {
       <div className="selection-actions">
         <Button
           fullWidth
-          disabled={selectedIndex === null}
+          disabled={selectedIndices.size === 0}
           onClick={handleContinue}
         >
-          Continue with Selected Event
+          {selectedIndices.size === 0
+            ? 'Select Events'
+            : selectedIndices.size === 1
+            ? 'Continue with 1 Event'
+            : `Continue with ${selectedIndices.size} Events`}
         </Button>
       </div>
     </div>

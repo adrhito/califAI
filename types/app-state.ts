@@ -17,6 +17,7 @@ export interface AppState {
   view: AppView;
   events: CalifyEvent[];
   selectedEventIndex: number | null;
+  selectedEventIndices: number[]; // For multi-select
   currentEvent: CalifyEvent | null;
   error: {
     message: string;
@@ -28,6 +29,7 @@ export interface AppState {
     progress?: number;
   } | null;
   createdEventUrl?: string;
+  createdEventUrls: string[]; // For multiple events
   capturedImage?: string; // Base64 data URL (only during loading)
 }
 
@@ -35,7 +37,9 @@ export const initialAppState: AppState = {
   view: 'home',
   events: [],
   selectedEventIndex: null,
+  selectedEventIndices: [],
   currentEvent: null,
   error: null,
-  loading: null
+  loading: null,
+  createdEventUrls: []
 };

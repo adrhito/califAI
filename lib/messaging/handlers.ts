@@ -36,6 +36,22 @@ export async function handleMessage(
         };
       }
 
+      case 'CREATE_EVENTS': {
+        const results = [];
+        for (const event of message.events) {
+          const result = await createEvent(event, message.calendarId);
+          results.push({
+            eventId: result.eventId,
+            eventUrl: result.eventUrl,
+            title: event.title
+          });
+        }
+        return {
+          success: true,
+          data: { results }
+        };
+      }
+
       case 'AUTHORIZE_GOOGLE': {
         const success = await authorizeUser();
         return {

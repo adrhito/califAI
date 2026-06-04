@@ -5,7 +5,7 @@ import { Reminder } from '../../types/event';
 
 export interface Settings {
   apiKey?: string;
-  provider?: 'gemini'; // Extensible for future providers
+  provider?: 'openai' | 'gemini'; // Extensible for future providers
   defaultCalendar?: string;
   defaultReminders?: Reminder[];
   defaultTimezone?: string;

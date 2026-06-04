@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
+import Select from '../ui/Select';
 import Card from '../ui/Card';
 import { useAppState } from '../../hooks/useAppState';
 import { sendToBackground } from '../../lib/messaging/send';
@@ -10,6 +11,7 @@ import './SetupView.css';
 export default function SetupView() {
   const { setView } = useAppState();
   const [apiKey, setApiKey] = useState('');
+  const [provider, setProvider] = useState<'openai' | 'gemini'>('gemini');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,18 +25,26 @@ export default function SetupView() {
     setError('');
 
     try {
+      console.log('Starting setup...');
+
       // Save API key
       await saveSetting('apiKey', apiKey);
+      await saveSetting('provider', provider);
+      console.log('API key saved');
 
+      console.log('Requesting Google authorization...');
       // Authorize Google
       const response = await sendToBackground({ type: 'AUTHORIZE_GOOGLE' });
+      console.log('Authorization response:', response);
 
       if (!response.success || !response.data.success) {
         throw new Error('Google authorization failed');
       }
 
+      console.log('Authorization successful, going to home');
       setView('home');
     } catch (err) {
+      console.error('Setup error:', err);
       setError(err instanceof Error ? err.message : 'Setup failed');
     } finally {
       setLoading(false);
@@ -55,28 +65,50 @@ export default function SetupView() {
           <div className="setup-step">
             <div className="setup-step-number">1</div>
             <div className="setup-step-content">
-              <h3 className="setup-step-title">Get your Gemini API key</h3>
-              <p className="setup-step-description text-sm text-muted">
-                Visit{' '}
-                <a
-                  href="https://aistudio.google.com/app/apikey"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="setup-link"
-                >
-                  Google AI Studio
-                </a>
-                {' '}to create a free API key
-              </p>
+              <h3 className="setup-step-title">Choose your AI provider</h3>
+              <Select
+                value={provider}
+                onChange={(e) => setProvider(e.target.value as 'openai' | 'gemini')}
+                options={[
+                  { value: 'gemini', label: 'Google Gemini - FREE (1,500/day)' },
+                  { value: 'openai', label: 'OpenAI GPT-4o (Paid)' }
+                ]}
+                fullWidth
+              />
             </div>
           </div>
 
           <div className="setup-step">
             <div className="setup-step-number">2</div>
             <div className="setup-step-content">
+              <h3 className="setup-step-title">
+                Get your {provider === 'gemini' ? 'free ' : ''}API key
+              </h3>
+              <p className="setup-step-description text-sm text-muted">
+                Visit{' '}
+                <a
+                  href={
+                    provider === 'gemini'
+                      ? 'https://aistudio.google.com/app/apikey'
+                      : 'https://platform.openai.com/api-keys'
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="setup-link"
+                >
+                  {provider === 'gemini' ? 'Google AI Studio' : 'OpenAI Platform'}
+                </a>
+                {' '}to {provider === 'gemini' ? 'get a free' : 'create an'} API key
+              </p>
+            </div>
+          </div>
+
+          <div className="setup-step">
+            <div className="setup-step-number">3</div>
+            <div className="setup-step-content">
               <h3 className="setup-step-title">Enter your API key</h3>
               <Input
-                placeholder="Enter your Gemini API key"
+                placeholder={provider === 'gemini' ? 'AIza...' : 'sk-...'}
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 error={error}
@@ -87,7 +119,7 @@ export default function SetupView() {
           </div>
 
           <div className="setup-step">
-            <div className="setup-step-number">3</div>
+            <div className="setup-step-number">4</div>
             <div className="setup-step-content">
               <h3 className="setup-step-title">Connect Google Calendar</h3>
               <p className="setup-step-description text-sm text-muted">
@@ -108,8 +140,11 @@ export default function SetupView() {
 
         <div className="setup-footer text-xs text-muted">
           <p>
+            {provider === 'gemini'
+              ? 'Gemini is completely free with 1,500 requests per day. '
+              : ''}
             Your API key is stored locally and never leaves your browser.
-            See our privacy policy for more details.
+            CalifAI uses it to process screenshots with AI.
           </p>
         </div>
       </div>

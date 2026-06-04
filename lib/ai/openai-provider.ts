@@ -1,61 +1,58 @@
-// Gemini 2.5 Flash provider implementation
+// OpenAI GPT-4 Vision provider implementation
 
 import { AIProvider } from './types';
 import { AIExtractionResponse, AIExtractionResponseSchema } from './schema';
 import { EXTRACTION_PROMPT } from './extraction-prompt';
 
-const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const OPENAI_API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
 
-interface GeminiResponse {
-  candidates?: Array<{
-    content: {
-      parts: Array<{
-        text?: string;
-      }>;
+interface OpenAIResponse {
+  choices?: Array<{
+    message: {
+      content: string;
     };
   }>;
   error?: {
     message: string;
-    code: number;
+    type: string;
   };
 }
 
-export class GeminiProvider implements AIProvider {
-  name = 'gemini';
+export class OpenAIProvider implements AIProvider {
+  name = 'openai';
 
   async extractEvents(imageBase64: string, apiKey: string): Promise<AIExtractionResponse> {
-    // Remove data URL prefix if present
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
-
     const requestBody = {
-      contents: [
+      model: 'gpt-4o',
+      messages: [
         {
-          parts: [
+          role: 'user',
+          content: [
             {
+              type: 'text',
               text: EXTRACTION_PROMPT
             },
             {
-              inline_data: {
-                mime_type: 'image/jpeg',
-                data: base64Data
+              type: 'image_url',
+              image_url: {
+                url: `data:image/jpeg;base64,${imageBase64}`
               }
             }
           ]
         }
       ],
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 4096
-      }
+      max_tokens: 4096,
+      temperature: 0.2
     };
 
-    console.log('Making request to:', GEMINI_API_ENDPOINT);
-    console.log('API Key format:', apiKey.substring(0, 10) + '...');
+    console.log('Making request to:', OPENAI_API_ENDPOINT);
+    console.log('Using model: gpt-4o');
 
-    const response = await fetch(`${GEMINI_API_ENDPOINT}?key=${apiKey}`, {
+    const response = await fetch(OPENAI_API_ENDPOINT, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify(requestBody)
     });
@@ -64,22 +61,22 @@ export class GeminiProvider implements AIProvider {
       const error = await response.json().catch(() => ({}));
       console.error('API Error Response:', JSON.stringify(error, null, 2));
       console.error('Status:', response.status);
-      throw new Error(error.error?.message || `Gemini API error: ${response.status}`);
+      throw new Error(error.error?.message || `OpenAI API error: ${response.status}`);
     }
 
-    const data: GeminiResponse = await response.json();
+    const data: OpenAIResponse = await response.json();
 
     if (data.error) {
       throw new Error(data.error.message);
     }
 
-    if (!data.candidates || data.candidates.length === 0) {
-      throw new Error('No response from Gemini');
+    if (!data.choices || data.choices.length === 0) {
+      throw new Error('No response from OpenAI');
     }
 
-    const textResponse = data.candidates[0].content.parts[0].text;
+    const textResponse = data.choices[0].message.content;
     if (!textResponse) {
-      throw new Error('Empty response from Gemini');
+      throw new Error('Empty response from OpenAI');
     }
 
     // Parse and validate the JSON response
