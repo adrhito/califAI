@@ -1,58 +1,21 @@
 // Local OCR provider using Tesseract.js - completely free and private
+// NOTE: This runs in the popup, not the service worker, because Tesseract needs Web Workers
 
 import { AIProvider } from './types';
 import { AIExtractionResponse, CalifyEventSchema } from './schema';
-import Tesseract from 'tesseract.js';
 import * as chrono from 'chrono-node';
 
 export class LocalProvider implements AIProvider {
   name = 'local';
 
   async extractEvents(imageBase64: string, _apiKey: string): Promise<AIExtractionResponse> {
-    try {
-      console.log('Starting local OCR extraction...');
-
-      // Remove data URL prefix if present
-      const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
-      const imageData = `data:image/jpeg;base64,${base64Data}`;
-
-      // Step 1: Extract text using Tesseract.js
-      console.log('Running OCR...');
-      const { data: { text } } = await Tesseract.recognize(imageData, 'eng', {
-        logger: m => console.log('OCR progress:', m)
-      });
-
-      console.log('Extracted text:', text);
-
-      if (!text || text.trim().length === 0) {
-        return {
-          events: [],
-          reasoning: 'No text found in image'
-        };
-      }
-
-      // Step 2: Parse dates and times using Chrono
-      const parsedDates = chrono.parse(text);
-      console.log('Found dates:', parsedDates);
-
-      if (parsedDates.length === 0) {
-        return {
-          events: [],
-          reasoning: 'No dates found in extracted text'
-        };
-      }
-
-      // Step 3: Extract events from parsed data
-      const events = this.extractEventsFromText(text, parsedDates);
-
-      return {
-        events,
-        reasoning: `Extracted ${events.length} event(s) from OCR text`
-      };
-    } catch (error) {
-      console.error('Local extraction error:', error);
-      throw new Error(`Local OCR failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    // NOTE: This should NOT be called from the service worker anymore!
+    // Local extraction now happens in popup context via local-extraction.ts
+    // This is kept for backward compatibility but will throw a helpful error
+    throw new Error(
+      'Local provider cannot run in service worker context. ' +
+      'Please use CAPTURE_TAB message and run local extraction in popup.'
+    );
   }
 
   private extractEventsFromText(text: string, parsedDates: any[]): any[] {

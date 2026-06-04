@@ -3,6 +3,8 @@ import Button from '../ui/Button';
 import Card from '../ui/Card';
 import { useAppState } from '../../hooks/useAppState';
 import { sendToBackground } from '../../lib/messaging/send';
+import { getSettings } from '../../lib/storage/settings';
+import { extractEventsLocally } from '../../lib/ai/local-extraction';
 import './HomeView.css';
 
 export default function HomeView() {
@@ -15,14 +17,35 @@ export default function HomeView() {
     setView('loading');
 
     try {
-      // Capture and extract
-      const response = await sendToBackground({ type: 'CAPTURE_AND_EXTRACT' });
+      // Check if using local provider
+      const settings = await getSettings();
+      const isLocal = settings.provider === 'local';
 
-      if (!response.success) {
-        throw new Error(response.error.error);
+      let events;
+
+      if (isLocal) {
+        // For local provider: capture in service worker, extract in popup
+        setLoading({ message: 'Capturing screen...' });
+        const captureResponse = await sendToBackground({ type: 'CAPTURE_TAB' });
+
+        if (!captureResponse.success) {
+          throw new Error(captureResponse.error.error);
+        }
+
+        // Run local extraction in popup context (where Web Workers are available)
+        setLoading({ message: 'Extracting text with OCR...' });
+        const extraction = await extractEventsLocally(captureResponse.data.imageDataUrl);
+        events = extraction.events;
+      } else {
+        // For cloud providers: capture and extract in service worker
+        const response = await sendToBackground({ type: 'CAPTURE_AND_EXTRACT' });
+
+        if (!response.success) {
+          throw new Error(response.error.error);
+        }
+
+        events = response.data.events;
       }
-
-      const { events } = response.data;
 
       if (events.length === 0) {
         setError({
