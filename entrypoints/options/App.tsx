@@ -53,8 +53,8 @@ export default function App() {
           value={provider}
           onChange={(e) => setProvider(e.target.value as 'openai' | 'gemini')}
           options={[
-            { value: 'gemini', label: 'Google Gemini (Free - Recommended)' },
-            { value: 'openai', label: 'OpenAI GPT-4o' }
+            { value: 'gemini', label: 'Google Gemini 2.5 Flash (FREE - Recommended)' },
+            { value: 'openai', label: 'OpenAI GPT-4o-mini (Ultra-cheap)' }
           ]}
           fullWidth
         />
@@ -66,11 +66,11 @@ export default function App() {
           onChange={(e) => setApiKey(e.target.value)}
           helperText={
             provider === 'gemini'
-              ? 'Free tier: 1,500 requests/day - Get your free API key from Google AI Studio'
-              : 'Paid tier - Get your API key from OpenAI Platform'
+              ? 'Completely free: 1 million tokens/month (~thousands of captures)'
+              : 'Ultra-cheap: ~$0.002 per capture (500x cheaper than GPT-4o)'
           }
           fullWidth
-          placeholder={provider === 'gemini' ? 'AIza...' : 'sk-...'}
+          placeholder={provider === 'gemini' ? 'AIza... or AQ.Ab...' : 'sk-proj-...'}
         />
 
         <div className="options-help text-sm text-muted">
@@ -86,7 +86,7 @@ export default function App() {
             className="options-link"
           >
             {provider === 'gemini'
-              ? 'Get a free key at Google AI Studio →'
+              ? 'Get a FREE key at Google AI Studio →'
               : 'Create one at OpenAI Platform →'}
           </a>
         </div>

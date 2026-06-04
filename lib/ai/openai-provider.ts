@@ -23,7 +23,7 @@ export class OpenAIProvider implements AIProvider {
 
   async extractEvents(imageBase64: string, apiKey: string): Promise<AIExtractionResponse> {
     const requestBody = {
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       messages: [
         {
           role: 'user',
@@ -46,7 +46,7 @@ export class OpenAIProvider implements AIProvider {
     };
 
     console.log('Making request to:', OPENAI_API_ENDPOINT);
-    console.log('Using model: gpt-4o');
+    console.log('Using model: gpt-4o-mini');
 
     const response = await fetch(OPENAI_API_ENDPOINT, {
       method: 'POST',

@@ -70,8 +70,8 @@ export default function SetupView() {
                 value={provider}
                 onChange={(e) => setProvider(e.target.value as 'openai' | 'gemini')}
                 options={[
-                  { value: 'gemini', label: 'Google Gemini - FREE (1,500/day)' },
-                  { value: 'openai', label: 'OpenAI GPT-4o (Paid)' }
+                  { value: 'gemini', label: 'Google Gemini 2.5 Flash (FREE - 1M tokens/month)' },
+                  { value: 'openai', label: 'OpenAI GPT-4o-mini ($0.002/image)' }
                 ]}
                 fullWidth
               />
@@ -82,7 +82,7 @@ export default function SetupView() {
             <div className="setup-step-number">2</div>
             <div className="setup-step-content">
               <h3 className="setup-step-title">
-                Get your {provider === 'gemini' ? 'free ' : ''}API key
+                Get your {provider === 'gemini' ? 'FREE' : ''} API key
               </h3>
               <p className="setup-step-description text-sm text-muted">
                 Visit{' '}
@@ -98,7 +98,9 @@ export default function SetupView() {
                 >
                   {provider === 'gemini' ? 'Google AI Studio' : 'OpenAI Platform'}
                 </a>
-                {' '}to {provider === 'gemini' ? 'get a free' : 'create an'} API key
+                {' '}to create an API key
+                {provider === 'gemini' && ' (completely free, 1 million tokens/month)'}
+                {provider === 'openai' && ' (uses ultra-cheap GPT-4o-mini model)'}
               </p>
             </div>
           </div>
@@ -108,7 +110,7 @@ export default function SetupView() {
             <div className="setup-step-content">
               <h3 className="setup-step-title">Enter your API key</h3>
               <Input
-                placeholder={provider === 'gemini' ? 'AIza...' : 'sk-...'}
+                placeholder={provider === 'gemini' ? 'AIza... or AQ.Ab...' : 'sk-proj-...'}
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 error={error}
@@ -141,10 +143,9 @@ export default function SetupView() {
         <div className="setup-footer text-xs text-muted">
           <p>
             {provider === 'gemini'
-              ? 'Gemini is completely free with 1,500 requests per day. '
-              : ''}
+              ? 'Gemini is completely FREE with 1 million tokens/month (~thousands of captures). '
+              : 'GPT-4o-mini costs ~$0.002 per capture (500x cheaper than GPT-4o). '}
             Your API key is stored locally and never leaves your browser.
-            CalifAI uses it to process screenshots with AI.
           </p>
         </div>
       </div>
