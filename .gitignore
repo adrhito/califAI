@@ -1,3 +1,9 @@
+# Claude Code
+.claude
+
+# Project planning files
+*.xml
+
 # Dependencies
 node_modules
 
