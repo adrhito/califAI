@@ -1,0 +1,61 @@
+.select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.select-full {
+  width: 100%;
+}
+
+.select-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--on-surface);
+}
+
+.select {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--on-surface);
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-md);
+  outline: none;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.select:hover {
+  border-color: var(--gray-500);
+}
+
+.select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+.select-error {
+  border-color: var(--error);
+}
+
+.select-error:focus {
+  box-shadow: 0 0 0 3px rgba(234, 67, 53, 0.1);
+}
+
+.select:disabled {
+  background: var(--surface-variant);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.select-helper {
+  font-size: var(--font-size-xs);
+  color: var(--on-surface-variant);
+}
+
+.select-helper-error {
+  color: var(--error);
+}

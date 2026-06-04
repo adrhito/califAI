@@ -1,0 +1,35 @@
+.card {
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+}
+
+.card-padding-none {
+  padding: 0;
+}
+
+.card-padding-sm {
+  padding: var(--space-3);
+}
+
+.card-padding-md {
+  padding: var(--space-4);
+}
+
+.card-padding-lg {
+  padding: var(--space-6);
+}
+
+.card-hoverable:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--outline);
+}
+
+.card-clickable {
+  cursor: pointer;
+}
+
+.card-clickable:active {
+  transform: translateY(1px);
+}

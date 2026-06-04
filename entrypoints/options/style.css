@@ -1,0 +1,65 @@
+/* Import main styles */
+@import '../popup/style.css';
+
+body {
+  background: var(--surface-variant);
+}
+
+.options {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.options-header h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.options-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.options-section-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.options-help {
+  padding: var(--space-3);
+  background: var(--surface-variant);
+  border-radius: var(--radius-md);
+  line-height: var(--line-height-relaxed);
+}
+
+.options-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.options-link:hover {
+  text-decoration: underline;
+}
+
+.options-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--outline-variant);
+}
+
+.options-footer {
+  text-align: center;
+  line-height: var(--line-height-relaxed);
+  padding: var(--space-4);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+}

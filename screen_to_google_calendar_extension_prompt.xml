@@ -1,0 +1,491 @@
+<projectPrompt>
+  <role>
+    You are an expert full-stack Chrome Extension developer. Build a production-quality Google Chrome Web Store extension that lets a user create a Google Calendar event directly from whatever is visible on their screen, with one-click screen capture, AI event extraction, user review, optional editing, and one-click import to Google Calendar.
+  </role>
+
+  <projectName>
+    Screen-to-Google-Calendar Chrome Extension
+  </projectName>
+
+  <coreGoal>
+    Build a Chrome extension that allows the user to click one button, automatically capture the visible browser screen, extract calendar event information from it, show the user a clear "looks good?" review screen, allow intuitive editing if needed, and then add the event to the user's Google Calendar with another button.
+  </coreGoal>
+
+  <importantClarifyingInstruction>
+    Before coding, ask the user any clarifying questions needed to tailor the extension exactly. Ask about design, AI provider, Google Calendar authentication, target websites, recurring events, timezone handling, privacy expectations, Chrome Web Store requirements, and Git/GitHub workflow. Do not assume unclear product decisions unless the user tells you to proceed with best-practice defaults.
+  </importantClarifyingInstruction>
+
+  <clarifyingQuestionsToAskFirst>
+    <question>Should this extension use OpenAI, Gemini, Claude, or another AI provider for extracting event details from the screen capture?</question>
+    <question>Should the AI API key be entered by the user, stored locally, or handled through a backend server?</question>
+    <question>Should this be completely frontend-only, or should there be a small backend for secure AI API calls?</question>
+    <question>Should the extension import directly into Google Calendar using the Google Calendar API, or should it generate a prefilled Google Calendar event link?</question>
+    <question>Should users be able to choose which Google Calendar to add the event to?</question>
+    <question>Should the extension support recurring events?</question>
+    <question>Should the extension detect multiple events from one screen capture, or only one event at a time?</question>
+    <question>Should it work on any visible webpage, including Canvas, Gmail, PDFs, university websites, event pages, and screenshots embedded in websites?</question>
+    <question>Should the user be able to edit title, date, start time, end time, location, description, attendees, reminders, and calendar selection?</question>
+    <question>Should the UI style be minimal, modern, playful, productivity-focused, or Google-like?</question>
+    <question>Should the extension save previous imports or have a history page?</question>
+    <question>Should the extension avoid storing screen captures permanently for privacy?</question>
+    <question>What branch should commits be made on when the user approves them?</question>
+    <question>Should Claude only provide commit commands for the user to run, or may Claude run them after explicit approval?</question>
+  </clarifyingQuestionsToAskFirst>
+
+  <nonNegotiableRequirements>
+    <requirement>The extension must be a Google Chrome extension suitable for Chrome Web Store submission.</requirement>
+    <requirement>There should be no manual screenshot upload flow.</requirement>
+    <requirement>The user should not have to take or upload a screenshot themselves.</requirement>
+    <requirement>The main interaction should be: click one button, capture the visible screen automatically, extract event details, review, then import.</requirement>
+    <requirement>The extension must include a "Looks good" review step before importing to Google Calendar.</requirement>
+    <requirement>If the extracted event does not look good, the user must be able to edit the event details before import.</requirement>
+    <requirement>The edit interface must be intuitive, fast, and beginner-friendly.</requirement>
+    <requirement>The user must explicitly confirm before anything is added to Google Calendar.</requirement>
+    <requirement>The extension must request the minimum permissions needed.</requirement>
+    <requirement>The extension must clearly explain privacy behavior to the user.</requirement>
+    <requirement>Claude must never commit, push, publish, or modify GitHub history without explicit user approval for that exact action.</requirement>
+  </nonNegotiableRequirements>
+
+  <userFlow>
+    <step number="1">
+      User opens a webpage that contains event information, such as a class schedule, meeting invite, flyer, club event page, email, Canvas page, or announcement.
+    </step>
+
+    <step number="2">
+      User clicks the Chrome extension icon.
+    </step>
+
+    <step number="3">
+      Extension popup opens with a primary button labeled "Capture Event from Screen."
+    </step>
+
+    <step number="4">
+      User clicks the button.
+    </step>
+
+    <step number="5">
+      Extension automatically captures the currently visible tab/screen area using Chrome extension APIs. The user should not manually upload or create a screenshot.
+    </step>
+
+    <step number="6">
+      The captured image is processed by OCR and/or a vision-capable AI model to extract event information.
+    </step>
+
+    <step number="7">
+      Extension displays a review screen titled "Does this look good?"
+    </step>
+
+    <step number="8">
+      The review screen shows extracted fields:
+      <fields>
+        <field>Event title</field>
+        <field>Date</field>
+        <field>Start time</field>
+        <field>End time</field>
+        <field>Timezone</field>
+        <field>Location</field>
+        <field>Description</field>
+        <field>Calendar selection</field>
+        <field>Reminder settings</field>
+        <field>Confidence indicators for uncertain fields</field>
+      </fields>
+    </step>
+
+    <step number="9">
+      User chooses either:
+      <option>Looks good — import to Google Calendar</option>
+      <option>Edit details</option>
+    </step>
+
+    <step number="10">
+      If the user clicks "Edit details," they see an intuitive editable form with clean fields, natural labels, date/time pickers, and validation.
+    </step>
+
+    <step number="11">
+      After editing, user clicks "Save changes" and returns to the review screen.
+    </step>
+
+    <step number="12">
+      User clicks "Import to Google Calendar."
+    </step>
+
+    <step number="13">
+      Extension authenticates with Google Calendar if needed and creates the event.
+    </step>
+
+    <step number="14">
+      Extension displays a success screen with:
+      <successItems>
+        <item>Confirmation that the event was added</item>
+        <item>Event title</item>
+        <item>Date and time</item>
+        <item>Button to open the event in Google Calendar</item>
+        <item>Button to capture another event</item>
+      </successItems>
+    </step>
+  </userFlow>
+
+  <technicalRequirements>
+    <chromeExtension>
+      <manifestVersion>3</manifestVersion>
+
+      <requiredFiles>
+        <file>manifest.json</file>
+        <file>popup.html</file>
+        <file>popup.css</file>
+        <file>popup.js or React/Vite equivalent</file>
+        <file>background.js or service_worker.js</file>
+        <file>contentScript.js if needed</file>
+        <file>options.html if API keys or settings are needed</file>
+      </requiredFiles>
+
+      <permissions>
+        <permission>activeTab</permission>
+        <permission>scripting if content scripts are needed</permission>
+        <permission>identity if using Google OAuth directly</permission>
+        <permission>storage for user settings</permission>
+      </permissions>
+
+      <apisToConsider>
+        <api>chrome.tabs.captureVisibleTab</api>
+        <api>chrome.identity</api>
+        <api>chrome.storage.local</api>
+        <api>Google Calendar API</api>
+      </apisToConsider>
+    </chromeExtension>
+
+    <eventExtraction>
+      <requirement>Use OCR and/or a vision-language model to analyze the captured visible tab image.</requirement>
+      <requirement>Return structured JSON only from the extraction step.</requirement>
+      <requirement>Use strict validation before showing extracted data to the user.</requirement>
+      <requirement>Mark uncertain fields clearly.</requirement>
+      <requirement>Do not silently guess critical details like date, year, timezone, or AM/PM without showing uncertainty.</requirement>
+    </eventExtraction>
+
+    <calendarIntegration>
+      <requirement>Use Google Calendar API to create events after user confirmation.</requirement>
+      <requirement>Support Google OAuth login.</requirement>
+      <requirement>Request the narrowest possible Google Calendar scope.</requirement>
+      <requirement>Allow user to select a calendar if practical.</requirement>
+      <requirement>Return and display the created Google Calendar event link if available.</requirement>
+    </calendarIntegration>
+  </technicalRequirements>
+
+  <aiExtractionSchema>
+    <description>
+      The extraction system should produce a structured event object like this:
+    </description>
+
+    <jsonSchema>
+      {
+        "title": "string or null",
+        "date": "YYYY-MM-DD or null",
+        "startTime": "HH:mm or null",
+        "endTime": "HH:mm or null",
+        "timezone": "IANA timezone string or null",
+        "location": "string or null",
+        "description": "string or null",
+        "attendees": ["email strings if found"],
+        "recurrence": "string or null",
+        "reminders": [
+          {
+            "method": "popup or email",
+            "minutesBefore": 10
+          }
+        ],
+        "confidence": {
+          "title": "high | medium | low",
+          "date": "high | medium | low",
+          "startTime": "high | medium | low",
+          "endTime": "high | medium | low",
+          "timezone": "high | medium | low",
+          "location": "high | medium | low"
+        },
+        "warnings": [
+          "string warnings for uncertain or missing fields"
+        ],
+        "sourceTextSummary": "brief explanation of what text or visual evidence led to this extraction"
+      }
+    </jsonSchema>
+  </aiExtractionSchema>
+
+  <reviewScreenRequirements>
+    <screenName>Looks Good Review Screen</screenName>
+
+    <requirements>
+      <requirement>Show extracted event details in a clean card layout.</requirement>
+      <requirement>Use a clear heading: "Does this look good?"</requirement>
+      <requirement>Highlight missing or uncertain fields.</requirement>
+      <requirement>Use badges such as "High confidence," "Check this," or "Missing."</requirement>
+      <requirement>Primary button: "Looks good — import to Calendar."</requirement>
+      <requirement>Secondary button: "Edit details."</requirement>
+      <requirement>Optional button: "Try capture again."</requirement>
+      <requirement>Do not import until the user clicks the import button.</requirement>
+    </requirements>
+  </reviewScreenRequirements>
+
+  <editFeatureRequirements>
+    <screenName>Edit Event Details</screenName>
+
+    <requirements>
+      <requirement>The edit feature must feel intuitive and simple.</requirement>
+      <requirement>Use plain-language labels.</requirement>
+      <requirement>Use date picker for the date.</requirement>
+      <requirement>Use time picker for start and end time.</requirement>
+      <requirement>Use dropdown or autocomplete for timezone.</requirement>
+      <requirement>Use text input for title and location.</requirement>
+      <requirement>Use textarea for description.</requirement>
+      <requirement>Allow reminder editing.</requirement>
+      <requirement>Validate required fields before import.</requirement>
+      <requirement>If end time is missing, suggest a default duration but clearly show that it is a suggestion.</requirement>
+      <requirement>After editing, return user to the "Does this look good?" screen.</requirement>
+    </requirements>
+  </editFeatureRequirements>
+
+  <privacyRequirements>
+    <requirement>Do not store captured screen images longer than necessary.</requirement>
+    <requirement>Do not save screen captures permanently unless the user explicitly enables history.</requirement>
+    <requirement>Clearly disclose whether images are sent to an AI provider.</requirement>
+    <requirement>Do not collect unnecessary browsing data.</requirement>
+    <requirement>Use least-privilege permissions.</requirement>
+    <requirement>Include a privacy page or privacy section suitable for Chrome Web Store review.</requirement>
+  </privacyRequirements>
+
+  <uiDesign>
+    <style>
+      Minimal, modern, clean, fast, and trustworthy. The extension should feel like a polished productivity tool.
+    </style>
+
+    <layout>
+      <popupWidth>360px to 420px</popupWidth>
+      <primaryColor>Google-blue-inspired or neutral professional color palette</primaryColor>
+
+      <components>
+        <component>Primary action button</component>
+        <component>Loading state while analyzing screen</component>
+        <component>Review card</component>
+        <component>Editable form</component>
+        <component>Success confirmation screen</component>
+        <component>Error states</component>
+      </components>
+    </layout>
+
+    <copyExamples>
+      <button>Capture Event from Screen</button>
+      <loading>Reading the visible page...</loading>
+      <reviewTitle>Does this look good?</reviewTitle>
+      <primaryButton>Looks good — import to Calendar</primaryButton>
+      <secondaryButton>Edit details</secondaryButton>
+      <retryButton>Try capture again</retryButton>
+      <success>Event added to Google Calendar</success>
+    </copyExamples>
+  </uiDesign>
+
+  <errorHandling>
+    <case>
+      <condition>No event is detected</condition>
+      <response>Show a friendly message and allow the user to try again or manually enter details.</response>
+    </case>
+
+    <case>
+      <condition>Multiple possible events are detected</condition>
+      <response>Show each possible event as a selectable card before the review screen.</response>
+    </case>
+
+    <case>
+      <condition>Date or time is uncertain</condition>
+      <response>Highlight the uncertain field and require user confirmation before import.</response>
+    </case>
+
+    <case>
+      <condition>Google Calendar authorization fails</condition>
+      <response>Show clear re-login instructions and do not lose extracted event data.</response>
+    </case>
+
+    <case>
+      <condition>Calendar import fails</condition>
+      <response>Show the error, keep the edited event details, and allow retry.</response>
+    </case>
+  </errorHandling>
+
+  <recommendedArchitecture>
+    <frontend>
+      <option>Use React + Vite for a polished extension popup UI.</option>
+      <option>Use TypeScript for reliability.</option>
+      <option>Use a clean component structure: CaptureButton, LoadingState, ReviewCard, EditEventForm, SuccessScreen, ErrorState.</option>
+    </frontend>
+
+    <extensionLayer>
+      <item>Use manifest v3.</item>
+      <item>Use service worker for background logic.</item>
+      <item>Use chrome.tabs.captureVisibleTab to capture the currently visible tab.</item>
+      <item>Use chrome.identity or OAuth flow for Google authentication.</item>
+    </extensionLayer>
+
+    <aiLayer>
+      <item>Prefer a secure backend for AI API calls so API keys are not exposed in the extension.</item>
+      <item>If frontend-only, provide an options page where the user can enter their own API key and store it locally.</item>
+      <item>Use a vision-capable model if possible, because event details may appear in images, flyers, PDFs, or styled pages.</item>
+    </aiLayer>
+
+    <backendOptional>
+      <item>Node.js/Express or serverless API route.</item>
+      <item>Endpoint: POST /extract-event</item>
+      <item>Input: captured image as base64 or blob.</item>
+      <item>Output: validated structured event JSON.</item>
+      <item>Never store the image unless explicitly configured.</item>
+    </backendOptional>
+  </recommendedArchitecture>
+
+  <implementationTasks>
+    <task>Create Chrome extension manifest v3.</task>
+    <task>Create extension popup UI.</task>
+    <task>Add "Capture Event from Screen" button.</task>
+    <task>Use Chrome API to capture visible tab automatically.</task>
+    <task>Send captured image to OCR/AI extraction layer.</task>
+    <task>Parse and validate structured event JSON.</task>
+    <task>Build "Does this look good?" review screen.</task>
+    <task>Build intuitive event editing form.</task>
+    <task>Implement Google OAuth.</task>
+    <task>Implement Google Calendar event creation.</task>
+    <task>Add success screen with Google Calendar event link.</task>
+    <task>Add error states and retry behavior.</task>
+    <task>Add privacy disclosure and Chrome Web Store-ready permission explanation.</task>
+    <task>Write setup instructions.</task>
+    <task>Write testing checklist.</task>
+  </implementationTasks>
+
+  <securityAndCompliance>
+    <requirement>Do not hardcode private API keys.</requirement>
+    <requirement>Do not request broad host permissions unless absolutely necessary.</requirement>
+    <requirement>Explain all Chrome permissions in comments and documentation.</requirement>
+    <requirement>Use secure OAuth practices.</requirement>
+    <requirement>Do not silently send screenshots to third parties without disclosure.</requirement>
+    <requirement>Make the extension Chrome Web Store policy-conscious.</requirement>
+  </securityAndCompliance>
+
+  <gitAndCommitRules>
+    <nonNegotiableRule>
+      Claude must never commit to GitHub, push to GitHub, create a pull request, publish code, or run any git commit command without explicit user approval for that exact action.
+    </nonNegotiableRule>
+
+    <requirements>
+      <requirement>Claude should make code changes in small, logical chunks.</requirement>
+      <requirement>Claude should suggest commits often after completing meaningful units of work.</requirement>
+      <requirement>Claude may prepare a commit message suggestion, but must not execute the commit.</requirement>
+      <requirement>Claude must pause and ask for approval before every commit.</requirement>
+      <requirement>Claude must never run git commit, git push, gh pr create, gh repo create, or any GitHub publishing command unless the user explicitly says to do so.</requirement>
+      <requirement>Claude must clearly summarize what changed before asking for commit approval.</requirement>
+      <requirement>When asking for approval, Claude should provide the exact terminal commands the user can run in a separate/new terminal tab.</requirement>
+      <requirement>Claude should not assume that approval for one commit gives permission for future commits.</requirement>
+      <requirement>Each commit requires separate approval.</requirement>
+      <requirement>Each push requires separate approval.</requirement>
+      <requirement>Each pull request creation requires separate approval.</requirement>
+      <requirement>Claude must never modify GitHub history with commands like rebase, reset, force push, amend, or branch deletion without explicit approval for that exact action.</requirement>
+    </requirements>
+
+    <approvalWorkflow>
+      <step number="1">Claude completes a meaningful unit of work.</step>
+      <step number="2">Claude summarizes the changed files and what was implemented.</step>
+      <step number="3">Claude suggests a concise commit message.</step>
+      <step number="4">Claude asks: "Do you approve this commit?"</step>
+      <step number="5">Claude provides terminal commands for the user to run in a new terminal tab only if the user approves.</step>
+      <step number="6">Claude must not run the commands itself unless the user explicitly tells Claude to run those exact commands.</step>
+      <step number="7">Claude must repeat this approval process for every future commit.</step>
+    </approvalWorkflow>
+
+    <terminalCommandsTemplate>
+      <description>
+        When the user approves a commit, provide commands like these in a clearly separate code block that the user can run in a new terminal tab:
+      </description>
+
+      <commands>
+        <![CDATA[
+git status
+git add .
+git commit -m "Your commit message here"
+git status
+        ]]>
+      </commands>
+    </terminalCommandsTemplate>
+
+    <pushRules>
+      <rule>Committing locally and pushing to GitHub are separate actions.</rule>
+      <rule>Claude must ask for separate approval before pushing.</rule>
+      <rule>Claude must never run git push without explicit user approval.</rule>
+      <rule>If the user approves a push, Claude should provide the command in a separate terminal command block.</rule>
+      <rule>Claude must not push automatically after committing.</rule>
+    </pushRules>
+
+    <pushCommandsTemplate>
+      <commands>
+        <![CDATA[
+git push origin main
+        ]]>
+      </commands>
+    </pushCommandsTemplate>
+
+    <pullRequestRules>
+      <rule>Creating a pull request is a separate action from committing and pushing.</rule>
+      <rule>Claude must ask for explicit approval before creating a pull request.</rule>
+      <rule>Claude must not run gh pr create without explicit approval.</rule>
+    </pullRequestRules>
+
+    <pullRequestCommandsTemplate>
+      <commands>
+        <![CDATA[
+gh pr create --title "Pull request title here" --body "Pull request description here"
+        ]]>
+      </commands>
+    </pullRequestCommandsTemplate>
+
+    <strictInstruction>
+      Under no circumstances should Claude commit, push, publish, create a pull request, modify GitHub history, or run any GitHub-related write command without the user's explicit approval for that exact action. Frequent commits should be suggested, but never performed automatically.
+    </strictInstruction>
+  </gitAndCommitRules>
+
+  <testingChecklist>
+    <test>Capture event from a normal webpage.</test>
+    <test>Capture event from a university course page.</test>
+    <test>Capture event from Gmail or an email-like page.</test>
+    <test>Capture event from a flyer image embedded in a page.</test>
+    <test>Handle missing end time.</test>
+    <test>Handle missing location.</test>
+    <test>Handle ambiguous AM/PM.</test>
+    <test>Handle multiple detected events.</test>
+    <test>Edit event title, date, time, and location before import.</test>
+    <test>Successfully add event to Google Calendar.</test>
+    <test>Handle Google OAuth failure.</test>
+    <test>Handle AI extraction failure.</test>
+    <test>Verify screen capture is not permanently stored.</test>
+    <test>Verify Claude suggests commits after meaningful chunks of work.</test>
+    <test>Verify Claude never commits without explicit approval.</test>
+    <test>Verify Claude never pushes without separate explicit approval.</test>
+  </testingChecklist>
+
+  <deliverables>
+    <deliverable>Complete Chrome extension source code.</deliverable>
+    <deliverable>README with setup instructions.</deliverable>
+    <deliverable>Manifest v3 configuration.</deliverable>
+    <deliverable>Popup UI implementation.</deliverable>
+    <deliverable>Google Calendar API integration.</deliverable>
+    <deliverable>AI/OCR extraction implementation.</deliverable>
+    <deliverable>Privacy and permissions explanation.</deliverable>
+    <deliverable>Testing checklist.</deliverable>
+    <deliverable>Git commit suggestions after meaningful units of work, without committing unless the user explicitly approves.</deliverable>
+  </deliverables>
+
+  <qualityBar>
+    The finished product should feel like a real Chrome Web Store extension, not a prototype. It should be clean, reliable, privacy-conscious, and easy enough for a nontechnical user to understand. The core flow should be extremely simple: click once to capture, review the extracted event, edit if needed, and click once to import to Google Calendar.
+  </qualityBar>
+
+  <finalInstruction>
+    Before writing code, restate the intended product in your own words, ask the clarifying questions listed above, and wait for user answers unless the user explicitly says to proceed with best-practice defaults.
+
+    Claude must follow the gitAndCommitRules exactly: suggest commits often, but never commit, push, publish, create a pull request, or modify GitHub history without explicit approval for that exact action.
+
+    Claude must give terminal commands for committing in a separate code block when the user gives approval, ideally so the user can run them in a new terminal tab.
+
+    Under no circumstances may Claude commit on its own without explicit approval.
+  </finalInstruction>
+</projectPrompt>

@@ -1,0 +1,51 @@
+.home-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-6);
+  min-height: 500px;
+}
+
+.home-header {
+  text-align: center;
+}
+
+.home-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: var(--space-2);
+}
+
+.home-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--on-surface-variant);
+  line-height: var(--line-height-relaxed);
+}
+
+.home-instructions {
+  flex: 1;
+}
+
+.home-steps {
+  list-style-position: inside;
+  font-size: var(--font-size-sm);
+  color: var(--on-surface-variant);
+  line-height: var(--line-height-relaxed);
+}
+
+.home-steps li {
+  margin-bottom: var(--space-2);
+}
+
+.home-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.home-footer {
+  text-align: center;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--outline-variant);
+}
