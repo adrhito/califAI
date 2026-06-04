@@ -9,9 +9,13 @@ export async function extractEventsLocally(imageDataUrl: string): Promise<AIExtr
   try {
     console.log('Starting local OCR extraction in popup...');
 
+    // Configure Tesseract to use local worker file
+    const workerPath = chrome.runtime.getURL('tesseract-worker.min.js');
+
     // Extract text using Tesseract.js (runs in popup with Web Workers)
     console.log('Running OCR...');
     const { data: { text } } = await Tesseract.recognize(imageDataUrl, 'eng', {
+      workerPath,
       logger: m => console.log('OCR progress:', m)
     });
 

@@ -24,7 +24,13 @@ export default defineConfig({
     },
     action: {
       default_title: 'CalifAI - Add to Calendar'
-    }
+    },
+    web_accessible_resources: [
+      {
+        resources: ['tesseract-worker.min.js'],
+        matches: ['<all_urls>']
+      }
+    ]
   },
   vite: () => ({
     plugins: [react()]
