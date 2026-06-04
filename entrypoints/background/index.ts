@@ -4,7 +4,7 @@ import { handleMessage } from '../../lib/messaging/handlers';
 import { BackgroundMessage } from '../../lib/messaging/types';
 
 export default defineBackground(() => {
-  console.log('Calify service worker started');
+  console.log('CalifAI service worker started');
 
   chrome.runtime.onMessage.addListener((message: BackgroundMessage, _sender, sendResponse) => {
     handleMessage(message)

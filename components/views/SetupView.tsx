@@ -45,7 +45,7 @@ export default function SetupView() {
     <div className="setup-view">
       <div className="setup-content">
         <div className="setup-header">
-          <h1 className="setup-title">Welcome to Calify</h1>
+          <h1 className="setup-title">Welcome to CalifAI</h1>
           <p className="setup-subtitle text-muted">
             Let's get you set up to start capturing calendar events
           </p>
@@ -91,7 +91,7 @@ export default function SetupView() {
             <div className="setup-step-content">
               <h3 className="setup-step-title">Connect Google Calendar</h3>
               <p className="setup-step-description text-sm text-muted">
-                You'll be asked to authorize Calify to access your Google Calendar
+                You'll be asked to authorize CalifAI to access your Google Calendar
               </p>
             </div>
           </div>

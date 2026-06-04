@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   manifest: {
-    name: 'Calify',
+    name: 'CalifAI',
     description: 'Capture calendar events from any webpage and add them to Google Calendar',
     version: '1.0.0',
     permissions: [
@@ -22,7 +22,7 @@ export default defineConfig({
       ]
     },
     action: {
-      default_title: 'Calify - Add to Calendar'
+      default_title: 'CalifAI - Add to Calendar'
     }
   },
   vite: () => ({

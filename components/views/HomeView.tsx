@@ -57,7 +57,7 @@ export default function HomeView() {
   return (
     <div className="home-view">
       <div className="home-header">
-        <h1 className="home-title">Calify</h1>
+        <h1 className="home-title">CalifAI</h1>
         <p className="home-subtitle">
           Capture calendar events from any webpage and add them to Google Calendar
         </p>

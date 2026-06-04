@@ -38,7 +38,7 @@ export default function App() {
   return (
     <div className="options">
       <div className="options-header">
-        <h1>Calify Settings</h1>
+        <h1>CalifAI Settings</h1>
         <p className="text-muted">Configure your preferences and API settings</p>
       </div>
 
@@ -88,7 +88,7 @@ export default function App() {
       <div className="options-footer text-xs text-muted">
         <p>
           Your settings are stored locally and encrypted by Chrome.
-          Calify never sends your data to external servers except for AI processing.
+          CalifAI never sends your data to external servers except for AI processing.
         </p>
       </div>
     </div>
