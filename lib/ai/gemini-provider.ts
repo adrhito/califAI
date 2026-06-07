@@ -53,8 +53,45 @@ export class GeminiProvider implements AIProvider {
       ],
       generationConfig: {
         temperature: 0.2,
-        maxOutputTokens: 4096,
-        responseMimeType: 'application/json'  // Force JSON output (no markdown wrapping)
+        maxOutputTokens: 8192,
+        responseMimeType: 'application/json',
+        // Simplified schema - only essential fields required
+        responseSchema: {
+          type: 'object',
+          properties: {
+            events: {
+              type: 'array',
+              maxItems: 5,  // Limit to prevent huge responses
+              items: {
+                type: 'object',
+                properties: {
+                  title: { type: 'string', maxLength: 100 },
+                  description: { type: ['string', 'null'] },
+                  location: { type: ['string', 'null'] },
+                  startDate: { type: 'string' },
+                  endDate: { type: 'string' },
+                  timezone: { type: 'string' },
+                  isAllDay: { type: 'boolean' },
+                  recurrence: { type: 'null' },
+                  reminders: { type: 'null' },
+                  confidence: {
+                    type: 'object',
+                    properties: {
+                      overall: { type: 'number', minimum: 0, maximum: 1 },
+                      title: { type: 'number', minimum: 0, maximum: 1 },
+                      date: { type: 'number', minimum: 0, maximum: 1 },
+                      time: { type: 'number', minimum: 0, maximum: 1 },
+                      location: { type: 'number', minimum: 0, maximum: 1 }
+                    }
+                  }
+                },
+                required: ['title', 'startDate', 'endDate', 'timezone', 'isAllDay']
+              }
+            },
+            reasoning: { type: 'string', maxLength: 200 }
+          },
+          required: ['events']
+        }
       }
     };
 
@@ -132,12 +169,23 @@ export class GeminiProvider implements AIProvider {
 
     // Parse and validate the JSON response
     try {
+      // Log response length for debugging
+      console.log(`Response length: ${textResponse.length} characters`);
+
       const jsonResponse = JSON.parse(textResponse);
       const validated = AIExtractionResponseSchema.parse(jsonResponse);
       return validated;
     } catch (error) {
-      console.error('Failed to parse response:', textResponse);
+      console.error('Failed to parse response. Length:', textResponse.length);
+      console.error('First 500 chars:', textResponse.substring(0, 500));
+      console.error('Last 500 chars:', textResponse.substring(Math.max(0, textResponse.length - 500)));
       console.error('Parse error:', error);
+
+      // Check if response was truncated
+      if (error instanceof Error && error.message.includes('Unterminated')) {
+        throw new Error('Response was truncated. The image may contain too much text. Try with a simpler image or contact support.');
+      }
+
       throw new Error(`Invalid response format: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
