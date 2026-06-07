@@ -9,10 +9,10 @@ export async function extractEventsFromImage(imageDataUrl: string): Promise<AIEx
   // Get settings from storage
   const settings = await getSettings();
 
-  const providerName = settings.provider || 'local';
+  const providerName = settings.provider || 'gemini';
 
-  // API key is optional for local provider
-  if (providerName !== 'local' && !settings.apiKey) {
+  // API key is required
+  if (!settings.apiKey) {
     throw new Error('API key not configured. Please configure it in the extension options.');
   }
 
@@ -23,7 +23,7 @@ export async function extractEventsFromImage(imageDataUrl: string): Promise<AIEx
   const base64Image = dataUrlToBase64(imageDataUrl);
 
   // Extract events using the provider
-  const result = await provider.extractEvents(base64Image, settings.apiKey || '');
+  const result = await provider.extractEvents(base64Image, settings.apiKey);
 
   return result;
 }

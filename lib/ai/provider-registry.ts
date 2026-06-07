@@ -3,14 +3,12 @@
 import { AIProvider } from './types';
 import { OpenAIProvider } from './openai-provider';
 import { GeminiProvider } from './gemini-provider';
-import { LocalProvider } from './local-provider';
 
 const providers = new Map<string, AIProvider>();
 
-// Register default providers
+// Register providers (removed local provider due to Chrome extension CSP restrictions)
 providers.set('openai', new OpenAIProvider());
 providers.set('gemini', new GeminiProvider());
-providers.set('local', new LocalProvider());
 
 export function getProvider(name: string = 'openai'): AIProvider {
   const provider = providers.get(name);

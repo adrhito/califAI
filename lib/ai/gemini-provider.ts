@@ -4,7 +4,8 @@ import { AIProvider } from './types';
 import { AIExtractionResponse, AIExtractionResponseSchema } from './schema';
 import { EXTRACTION_PROMPT } from './extraction-prompt';
 
-const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+// Use Gemini 2.5 Flash (1.5 was shut down in 2026)
+const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 interface GeminiResponse {
   candidates?: Array<{
@@ -45,7 +46,8 @@ export class GeminiProvider implements AIProvider {
       ],
       generationConfig: {
         temperature: 0.2,
-        maxOutputTokens: 4096
+        maxOutputTokens: 4096,
+        responseMimeType: 'application/json'  // Force JSON output (no markdown wrapping)
       }
     };
 
@@ -83,24 +85,14 @@ export class GeminiProvider implements AIProvider {
     }
 
     // Parse and validate the JSON response
+    // With responseMimeType: 'application/json', the response should be pure JSON (no markdown)
     try {
-      // Extract JSON from markdown code blocks if present
-      let jsonText = textResponse;
-      const jsonMatch = textResponse.match(/```json\s*([\s\S]*?)\s*```/);
-      if (jsonMatch) {
-        jsonText = jsonMatch[1];
-      } else {
-        const codeMatch = textResponse.match(/```\s*([\s\S]*?)\s*```/);
-        if (codeMatch) {
-          jsonText = codeMatch[1];
-        }
-      }
-
-      const jsonResponse = JSON.parse(jsonText);
+      const jsonResponse = JSON.parse(textResponse);
       const validated = AIExtractionResponseSchema.parse(jsonResponse);
       return validated;
     } catch (error) {
       console.error('Failed to parse response:', textResponse);
+      console.error('Parse error:', error);
       throw new Error(`Invalid response format: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

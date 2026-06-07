@@ -8,7 +8,7 @@ import { COMMON_TIMEZONES } from '../../lib/utils/date';
 
 export default function App() {
   const [apiKey, setApiKey] = useState('');
-  const [provider, setProvider] = useState<'openai' | 'gemini' | 'local'>('local');
+  const [provider, setProvider] = useState<'openai' | 'gemini'>('gemini');
   const [defaultTimezone, setDefaultTimezone] = useState('America/Los_Angeles');
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -51,41 +51,29 @@ export default function App() {
         <Select
           label="AI Provider"
           value={provider}
-          onChange={(e) => setProvider(e.target.value as 'openai' | 'gemini' | 'local')}
+          onChange={(e) => setProvider(e.target.value as 'openai' | 'gemini')}
           options={[
-            { value: 'local', label: 'Local OCR (FREE - No API Key - Recommended)' },
-            { value: 'gemini', label: 'Google Gemini 2.5 Flash (FREE - Best Quality)' },
+            { value: 'gemini', label: 'Google Gemini 2.5 Flash (FREE - Recommended)' },
             { value: 'openai', label: 'OpenAI GPT-4o-mini (Ultra-cheap)' }
           ]}
           fullWidth
         />
 
-        {provider !== 'local' && (
-          <Input
-            label={provider === 'gemini' ? 'Gemini API Key' : 'OpenAI API Key'}
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            helperText={
-              provider === 'gemini'
-                ? 'Completely free: 1 million tokens/month (~thousands of captures)'
-                : 'Ultra-cheap: ~$0.002 per capture (500x cheaper than GPT-4o)'
-            }
-            fullWidth
-            placeholder={provider === 'gemini' ? 'AIza... or AQ.Ab...' : 'sk-proj-...'}
-          />
-        )}
+        <Input
+          label={provider === 'gemini' ? 'Gemini API Key' : 'OpenAI API Key'}
+          type="password"
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+          helperText={
+            provider === 'gemini'
+              ? 'Completely FREE: 1 million tokens/month (~thousands of captures)'
+              : 'Ultra-cheap: ~$0.002 per capture (500x cheaper than GPT-4o)'
+          }
+          fullWidth
+          placeholder={provider === 'gemini' ? 'AIza... or AQ.Ab...' : 'sk-proj-...'}
+        />
 
-        {provider === 'local' && (
-          <div className="text-sm text-muted" style={{ marginTop: 'var(--space-3)' }}>
-            <p>✓ No API key needed</p>
-            <p>✓ Runs completely in your browser</p>
-            <p>✓ Works offline and is 100% private</p>
-            <p>✓ Uses Tesseract.js OCR + date parsing</p>
-          </div>
-        )}
-
-        {provider !== 'local' && (
+        {(
           <div className="options-help text-sm text-muted">
             <p>Don't have an API key?</p>
             <a

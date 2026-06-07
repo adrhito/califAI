@@ -5,7 +5,7 @@ import { Reminder } from '../../types/event';
 
 export interface Settings {
   apiKey?: string;
-  provider?: 'openai' | 'gemini' | 'local'; // Extensible for future providers
+  provider?: 'openai' | 'gemini'; // Removed local provider due to CSP issues
   defaultCalendar?: string;
   defaultReminders?: Reminder[];
   defaultTimezone?: string;
@@ -22,7 +22,7 @@ export async function getSettings(): Promise<Settings> {
 
   return {
     apiKey: result[STORAGE_KEYS.API_KEY],
-    provider: result[STORAGE_KEYS.PROVIDER] || 'local',
+    provider: result[STORAGE_KEYS.PROVIDER] || 'gemini',  // Default to free Gemini
     defaultCalendar: result[STORAGE_KEYS.DEFAULT_CALENDAR],
     defaultReminders: result[STORAGE_KEYS.DEFAULT_REMINDERS],
     defaultTimezone: result[STORAGE_KEYS.DEFAULT_TIMEZONE]

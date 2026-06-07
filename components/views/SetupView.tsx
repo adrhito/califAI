@@ -11,12 +11,12 @@ import './SetupView.css';
 export default function SetupView() {
   const { setView } = useAppState();
   const [apiKey, setApiKey] = useState('');
-  const [provider, setProvider] = useState<'openai' | 'gemini' | 'local'>('local');
+  const [provider, setProvider] = useState<'openai' | 'gemini'>('gemini');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleContinue() {
-    if (provider !== 'local' && !apiKey.trim()) {
+    if (!apiKey.trim()) {
       setError('API key is required');
       return;
     }
@@ -27,8 +27,8 @@ export default function SetupView() {
     try {
       console.log('Starting setup...');
 
-      // Save API key (empty for local provider)
-      await saveSetting('apiKey', provider === 'local' ? '' : apiKey);
+      // Save API key and provider
+      await saveSetting('apiKey', apiKey);
       await saveSetting('provider', provider);
       console.log('Settings saved');
 
@@ -68,10 +68,9 @@ export default function SetupView() {
               <h3 className="setup-step-title">Choose your AI provider</h3>
               <Select
                 value={provider}
-                onChange={(e) => setProvider(e.target.value as 'openai' | 'gemini' | 'local')}
+                onChange={(e) => setProvider(e.target.value as 'openai' | 'gemini')}
                 options={[
-                  { value: 'local', label: 'Local OCR (FREE - No API Key - Recommended)' },
-                  { value: 'gemini', label: 'Google Gemini 2.5 Flash (FREE - 1M tokens/month)' },
+                  { value: 'gemini', label: 'Google Gemini 2.5 Flash (FREE - Recommended)' },
                   { value: 'openai', label: 'OpenAI GPT-4o-mini ($0.002/image)' }
                 ]}
                 fullWidth
@@ -79,54 +78,50 @@ export default function SetupView() {
             </div>
           </div>
 
-          {provider !== 'local' && (
-            <>
-              <div className="setup-step">
-                <div className="setup-step-number">2</div>
-                <div className="setup-step-content">
-                  <h3 className="setup-step-title">
-                    Get your {provider === 'gemini' ? 'FREE' : ''} API key
-                  </h3>
-                  <p className="setup-step-description text-sm text-muted">
-                    Visit{' '}
-                    <a
-                      href={
-                        provider === 'gemini'
-                          ? 'https://aistudio.google.com/app/apikey'
-                          : 'https://platform.openai.com/api-keys'
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="setup-link"
-                    >
-                      {provider === 'gemini' ? 'Google AI Studio' : 'OpenAI Platform'}
-                    </a>
-                    {' '}to create an API key
-                    {provider === 'gemini' && ' (completely free, 1 million tokens/month)'}
-                    {provider === 'openai' && ' (uses ultra-cheap GPT-4o-mini model)'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="setup-step">
-                <div className="setup-step-number">3</div>
-                <div className="setup-step-content">
-                  <h3 className="setup-step-title">Enter your API key</h3>
-                  <Input
-                    placeholder={provider === 'gemini' ? 'AIza... or AQ.Ab...' : 'sk-proj-...'}
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    error={error}
-                    fullWidth
-                    type="password"
-                  />
-                </div>
-              </div>
-            </>
-          )}
+          <div className="setup-step">
+            <div className="setup-step-number">2</div>
+            <div className="setup-step-content">
+              <h3 className="setup-step-title">
+                Get your {provider === 'gemini' ? 'FREE' : ''} API key
+              </h3>
+              <p className="setup-step-description text-sm text-muted">
+                Visit{' '}
+                <a
+                  href={
+                    provider === 'gemini'
+                      ? 'https://aistudio.google.com/app/apikey'
+                      : 'https://platform.openai.com/api-keys'
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="setup-link"
+                >
+                  {provider === 'gemini' ? 'Google AI Studio' : 'OpenAI Platform'}
+                </a>
+                {' '}to create an API key
+                {provider === 'gemini' && ' (completely FREE - 1 million tokens/month)'}
+                {provider === 'openai' && ' (uses ultra-cheap GPT-4o-mini model)'}
+              </p>
+            </div>
+          </div>
 
           <div className="setup-step">
-            <div className="setup-step-number">{provider === 'local' ? '2' : '4'}</div>
+            <div className="setup-step-number">3</div>
+            <div className="setup-step-content">
+              <h3 className="setup-step-title">Enter your API key</h3>
+              <Input
+                placeholder={provider === 'gemini' ? 'AIza... or AQ.Ab...' : 'sk-proj-...'}
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                error={error}
+                fullWidth
+                type="password"
+              />
+            </div>
+          </div>
+
+          <div className="setup-step">
+            <div className="setup-step-number">4</div>
             <div className="setup-step-content">
               <h3 className="setup-step-title">Connect Google Calendar</h3>
               <p className="setup-step-description text-sm text-muted">
@@ -147,12 +142,10 @@ export default function SetupView() {
 
         <div className="setup-footer text-xs text-muted">
           <p>
-            {provider === 'local'
-              ? 'Local OCR runs completely in your browser - no API, no internet required. Works offline and is 100% private. '
-              : provider === 'gemini'
+            {provider === 'gemini'
               ? 'Gemini is completely FREE with 1 million tokens/month (~thousands of captures). '
               : 'GPT-4o-mini costs ~$0.002 per capture (500x cheaper than GPT-4o). '}
-            {provider !== 'local' && 'Your API key is stored locally and never leaves your browser.'}
+            Your API key is stored locally and never leaves your browser.
           </p>
         </div>
       </div>

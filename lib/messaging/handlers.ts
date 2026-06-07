@@ -20,14 +20,6 @@ export async function handleMessage(
         };
       }
 
-      case 'CAPTURE_TAB': {
-        const imageDataUrl = await captureVisibleTab();
-        return {
-          success: true,
-          data: { imageDataUrl }
-        };
-      }
-
       case 'GET_CALENDARS': {
         const calendars = await listCalendars();
         return {
