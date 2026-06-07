@@ -5,7 +5,14 @@ import { AIExtractionResponse, AIExtractionResponseSchema } from './schema';
 import { EXTRACTION_PROMPT } from './extraction-prompt';
 
 // Use Gemini 2.5 Flash (1.5 was shut down in 2026)
-const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+// Falls back to 3.5 Flash if 2.5 is experiencing high demand
+const GEMINI_MODELS = [
+  'gemini-2.5-flash',
+  'gemini-3.5-flash'  // Fallback if 2.5 is overloaded
+];
+
+const getGeminiEndpoint = (model: string) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
 interface GeminiResponse {
   candidates?: Array<{
@@ -51,10 +58,42 @@ export class GeminiProvider implements AIProvider {
       }
     };
 
-    console.log('Making request to:', GEMINI_API_ENDPOINT);
-    console.log('API Key format:', apiKey.substring(0, 10) + '...');
+    // Try each model with retry logic
+    let lastError: Error | null = null;
 
-    const response = await fetch(`${GEMINI_API_ENDPOINT}?key=${apiKey}`, {
+    for (const model of GEMINI_MODELS) {
+      try {
+        console.log(`Attempting with model: ${model}`);
+        const result = await this.makeRequest(model, requestBody, apiKey);
+        console.log(`Success with model: ${model}`);
+        return result;
+      } catch (error) {
+        lastError = error as Error;
+        console.warn(`Failed with ${model}:`, error instanceof Error ? error.message : error);
+
+        // If it's a high demand error (503), try the next model
+        if (error instanceof Error && error.message.includes('high demand')) {
+          console.log('High demand detected, trying alternative model...');
+          continue;
+        }
+
+        // For other errors, throw immediately
+        throw error;
+      }
+    }
+
+    // If all models failed, throw the last error
+    throw lastError || new Error('All Gemini models failed');
+  }
+
+  private async makeRequest(
+    model: string,
+    requestBody: any,
+    apiKey: string
+  ): Promise<AIExtractionResponse> {
+    const endpoint = getGeminiEndpoint(model);
+
+    const response = await fetch(`${endpoint}?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -66,6 +105,13 @@ export class GeminiProvider implements AIProvider {
       const error = await response.json().catch(() => ({}));
       console.error('API Error Response:', JSON.stringify(error, null, 2));
       console.error('Status:', response.status);
+
+      // Check for high demand error (503)
+      if (response.status === 503 ||
+          (error.error?.message && error.error.message.includes('high demand'))) {
+        throw new Error('This model is currently experiencing high demand');
+      }
+
       throw new Error(error.error?.message || `Gemini API error: ${response.status}`);
     }
 
@@ -85,7 +131,6 @@ export class GeminiProvider implements AIProvider {
     }
 
     // Parse and validate the JSON response
-    // With responseMimeType: 'application/json', the response should be pure JSON (no markdown)
     try {
       const jsonResponse = JSON.parse(textResponse);
       const validated = AIExtractionResponseSchema.parse(jsonResponse);
