@@ -33,8 +33,8 @@ Coming soon.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/adrhito/califAI.git
-   cd califAI
+   git clone https://github.com/adrhito/CalifAI.git
+   cd CalifAI
    ```
 
 2. Install dependencies:
@@ -84,4 +84,4 @@ See the full [Privacy Policy](PRIVACY.md).
 
 ## Support
 
-For bugs or feature requests, [open an issue](https://github.com/adrhito/califAI/issues) or email lennyface2121@gmail.com.
+For bugs or feature requests, [open an issue](https://github.com/adrhito/CalifAI/issues) or email lennyface2121@gmail.com.
