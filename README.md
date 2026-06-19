@@ -1,10 +1,10 @@
 # CalifAI — Screen to Google Calendar
 
-CalifAI is a Chrome extension that uses AI to extract calendar event information from any webpage and add it directly to your Google Calendar.
-
-**[📋 Privacy Policy](PRIVACY.md)**
+**[🌐 Homepage](https://adrhito.github.io/califAI/)** · **[📋 Privacy Policy](https://adrhito.github.io/califAI/PRIVACY)** · **[🐛 Issues](https://github.com/adrhito/califAI/issues)**
 
 ---
+
+CalifAI is a Chrome extension that uses AI to extract calendar event information from any webpage and adds it directly to your Google Calendar. Select any event text on screen, let AI read it, review the details, and add it to your calendar in seconds.
 
 ## How It Works
 
@@ -33,8 +33,8 @@ Coming soon.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/adrhito/CalifAI.git
-   cd CalifAI
+   git clone https://github.com/adrhito/califAI.git
+   cd califAI
    ```
 
 2. Install dependencies:
@@ -80,8 +80,8 @@ npm run compile  # Type-check without building
 
 The selected screenshot is sent to your chosen AI provider (Gemini or OpenAI) for event extraction only. Your Google Calendar access is handled directly through Google's OAuth flow. No data passes through any CalifAI server — there isn't one.
 
-See the full [Privacy Policy](PRIVACY.md).
+See the full [Privacy Policy](https://adrhito.github.io/califAI/PRIVACY).
 
 ## Support
 
-For bugs or feature requests, [open an issue](https://github.com/adrhito/CalifAI/issues) or email lennyface2121@gmail.com.
+For bugs or feature requests, [open an issue](https://github.com/adrhito/califAI/issues) or email lennyface2121@gmail.com.
