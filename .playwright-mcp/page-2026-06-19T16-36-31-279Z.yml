@@ -1,0 +1,272 @@
+- generic [ref=e2]:
+  - heading "califAI" [level=1] [ref=e3]:
+    - link "califAI" [ref=e4] [cursor=pointer]:
+      - /url: https://adrhito.github.io/califAI/
+  - heading "Privacy Policy for Calify" [level=1] [ref=e5]
+  - paragraph [ref=e6]: "Last Updated: June 4, 2026"
+  - heading "OverviewAnchor" [level=2] [ref=e7]:
+    - text: Overview
+    - link "Anchor" [ref=e8] [cursor=pointer]:
+      - /url: "#overview"
+      - text: 
+  - paragraph [ref=e9]: Calify is committed to protecting your privacy. This privacy policy explains how Calify handles your data when you use the Chrome extension.
+  - heading "Data Collection and UsageAnchor" [level=2] [ref=e10]:
+    - text: Data Collection and Usage
+    - link "Anchor" [ref=e11] [cursor=pointer]:
+      - /url: "#data-collection-and-usage"
+      - text: 
+  - heading "What Data We AccessAnchor" [level=3] [ref=e12]:
+    - text: What Data We Access
+    - link "Anchor" [ref=e13] [cursor=pointer]:
+      - /url: "#what-data-we-access"
+      - text: 
+  - list [ref=e14]:
+    - listitem [ref=e15]:
+      - strong [ref=e16]: Screen Captures
+      - list [ref=e17]:
+        - listitem [ref=e18]: "When: Only when you click “Capture Event”"
+        - listitem [ref=e19]: "What: Screenshot of the active browser tab"
+        - listitem [ref=e20]: "Purpose: Extract calendar event information using AI"
+        - listitem [ref=e21]: "Storage: Temporarily held in memory during processing only"
+        - listitem [ref=e22]: "Retention: Immediately discarded after AI processing completes"
+    - listitem [ref=e23]:
+      - strong [ref=e24]: API Keys
+      - list [ref=e25]:
+        - listitem [ref=e26]: "What: Your Gemini API key"
+        - listitem [ref=e27]: "Storage: chrome.storage.local (encrypted by Chrome)"
+        - listitem [ref=e28]: "Purpose: Authenticate requests to Gemini API"
+        - listitem [ref=e29]: "Access: Never transmitted except to Gemini API"
+    - listitem [ref=e30]:
+      - strong [ref=e31]: Google Calendar Access
+      - list [ref=e32]:
+        - listitem [ref=e33]: "What: OAuth tokens for Google Calendar API"
+        - listitem [ref=e34]: "Storage: Managed by chrome.identity API"
+        - listitem [ref=e35]: "Purpose: Create events in your Google Calendar"
+        - listitem [ref=e36]: "Scopes: calendar.events (create events) and calendar.readonly (list calendars)"
+    - listitem [ref=e37]:
+      - strong [ref=e38]: Event Data
+      - list [ref=e39]:
+        - listitem [ref=e40]: "What: Extracted calendar event details"
+        - listitem [ref=e41]: "Storage: chrome.storage.session (cleared when browser closes)"
+        - listitem [ref=e42]: "Purpose: Allow you to review and edit before importing"
+        - listitem [ref=e43]: "Retention: Until you close the browser or manually reset"
+    - listitem [ref=e44]:
+      - strong [ref=e45]: User Preferences
+      - list [ref=e46]:
+        - listitem [ref=e47]: "What: Default timezone and other settings"
+        - listitem [ref=e48]: "Storage: chrome.storage.local"
+        - listitem [ref=e49]: "Purpose: Personalize your experience"
+  - heading "What We Don’t CollectAnchor" [level=3] [ref=e50]:
+    - text: What We Don’t Collect
+    - link "Anchor" [ref=e51] [cursor=pointer]:
+      - /url: "#what-we-dont-collect"
+      - text: 
+  - list [ref=e52]:
+    - listitem [ref=e53]: ❌ No browsing history
+    - listitem [ref=e54]: ❌ No personal information beyond what you explicitly provide
+    - listitem [ref=e55]: ❌ No analytics or telemetry
+    - listitem [ref=e56]: ❌ No tracking cookies
+    - listitem [ref=e57]: ❌ No crash reports
+    - listitem [ref=e58]: ❌ No usage statistics
+    - listitem [ref=e59]: ❌ No event history after import
+  - heading "Data TransmissionAnchor" [level=2] [ref=e60]:
+    - text: Data Transmission
+    - link "Anchor" [ref=e61] [cursor=pointer]:
+      - /url: "#data-transmission"
+      - text: 
+  - heading "Third-Party ServicesAnchor" [level=3] [ref=e62]:
+    - text: Third-Party Services
+    - link "Anchor" [ref=e63] [cursor=pointer]:
+      - /url: "#third-party-services"
+      - text: 
+  - paragraph [ref=e64]: "Calify communicates with two external services:"
+  - list [ref=e65]:
+    - listitem [ref=e66]:
+      - strong [ref=e67]: Google Gemini API
+      - list [ref=e68]:
+        - listitem [ref=e69]: "Purpose: AI-powered event extraction from screenshots"
+        - listitem [ref=e70]: "Data Sent: Screenshot images (JPEG), your API key"
+        - listitem [ref=e71]: "Data Received: Structured event information"
+        - listitem [ref=e72]:
+          - text: "Privacy: Subject to"
+          - link "Google’s Privacy Policy" [ref=e73] [cursor=pointer]:
+            - /url: https://policies.google.com/privacy
+        - listitem [ref=e74]: "Note: We use YOUR API key; Google bills you directly for API usage"
+    - listitem [ref=e75]:
+      - strong [ref=e76]: Google Calendar API
+      - list [ref=e77]:
+        - listitem [ref=e78]: "Purpose: Create calendar events, list calendars"
+        - listitem [ref=e79]: "Data Sent: Event details, OAuth tokens"
+        - listitem [ref=e80]: "Data Received: Created event information"
+        - listitem [ref=e81]:
+          - text: "Privacy: Subject to"
+          - link "Google’s Privacy Policy" [ref=e82] [cursor=pointer]:
+            - /url: https://policies.google.com/privacy
+        - listitem [ref=e83]: "Note: Uses standard OAuth2 flow; Calify never sees your password"
+  - heading "No Other External ServersAnchor" [level=3] [ref=e84]:
+    - text: No Other External Servers
+    - link "Anchor" [ref=e85] [cursor=pointer]:
+      - /url: "#no-other-external-servers"
+      - text: 
+  - list [ref=e86]:
+    - listitem [ref=e87]: Calify does NOT use any backend servers
+    - listitem [ref=e88]: All processing happens locally in your browser
+    - listitem [ref=e89]: No data is sent to Calify developers or third parties (except as noted above)
+  - heading "Data SecurityAnchor" [level=2] [ref=e90]:
+    - text: Data Security
+    - link "Anchor" [ref=e91] [cursor=pointer]:
+      - /url: "#data-security"
+      - text: 
+  - heading "Local Storage SecurityAnchor" [level=3] [ref=e92]:
+    - text: Local Storage Security
+    - link "Anchor" [ref=e93] [cursor=pointer]:
+      - /url: "#local-storage-security"
+      - text: 
+  - list [ref=e94]:
+    - listitem [ref=e95]: All local data is stored using Chrome’s storage APIs
+    - listitem [ref=e96]: Chrome encrypts storage on disk
+    - listitem [ref=e97]: Storage is isolated per-extension (other extensions cannot access it)
+  - heading "Screenshot HandlingAnchor" [level=3] [ref=e98]:
+    - text: Screenshot Handling
+    - link "Anchor" [ref=e99] [cursor=pointer]:
+      - /url: "#screenshot-handling"
+      - text: 
+  - list [ref=e100]:
+    - listitem [ref=e101]: Screenshot captured when you click “Capture Event”
+    - listitem [ref=e102]: Converted to JPEG (85% quality) for efficient transmission
+    - listitem [ref=e103]: Sent to Gemini API for processing
+    - listitem [ref=e104]: Response received and parsed
+    - listitem [ref=e105]: Screenshot immediately garbage collected (never saved to disk)
+  - heading "API Key SecurityAnchor" [level=3] [ref=e106]:
+    - text: API Key Security
+    - link "Anchor" [ref=e107] [cursor=pointer]:
+      - /url: "#api-key-security"
+      - text: 
+  - list [ref=e108]:
+    - listitem [ref=e109]: Stored in chrome.storage.local (encrypted by Chrome)
+    - listitem [ref=e110]: Never logged or displayed in plain text (password field in UI)
+    - listitem [ref=e111]: Only transmitted over HTTPS to Gemini API
+    - listitem [ref=e112]: Never sent to any other service
+  - heading "OAuth Token SecurityAnchor" [level=3] [ref=e113]:
+    - text: OAuth Token Security
+    - link "Anchor" [ref=e114] [cursor=pointer]:
+      - /url: "#oauth-token-security"
+      - text: 
+  - list [ref=e115]:
+    - listitem [ref=e116]: Managed entirely by Chrome’s identity API
+    - listitem [ref=e117]: Calify never directly accesses refresh tokens
+    - listitem [ref=e118]: Access tokens are automatically refreshed when expired
+    - listitem [ref=e119]: Tokens are revocable from your Google Account settings
+  - heading "Your Rights and ControlsAnchor" [level=2] [ref=e120]:
+    - text: Your Rights and Controls
+    - link "Anchor" [ref=e121] [cursor=pointer]:
+      - /url: "#your-rights-and-controls"
+      - text: 
+  - heading "Data AccessAnchor" [level=3] [ref=e122]:
+    - text: Data Access
+    - link "Anchor" [ref=e123] [cursor=pointer]:
+      - /url: "#data-access"
+      - text: 
+  - paragraph [ref=e124]: "You can access all data Calify stores:"
+  - list [ref=e125]:
+    - listitem [ref=e126]: "API Key: Open extension options page"
+    - listitem [ref=e127]: "Preferences: Open extension options page"
+    - listitem [ref=e128]: "Session State: Visible in the extension popup"
+  - heading "Data DeletionAnchor" [level=3] [ref=e129]:
+    - text: Data Deletion
+    - link "Anchor" [ref=e130] [cursor=pointer]:
+      - /url: "#data-deletion"
+      - text: 
+  - paragraph [ref=e131]: "You can delete all Calify data:"
+  - list [ref=e132]:
+    - listitem [ref=e133]: Right-click the extension icon → “Remove from Chrome”
+    - listitem [ref=e134]: "Or manually: Chrome Storage → Clear extension data"
+  - heading "Google Calendar AccessAnchor" [level=3] [ref=e135]:
+    - text: Google Calendar Access
+    - link "Anchor" [ref=e136] [cursor=pointer]:
+      - /url: "#google-calendar-access"
+      - text: 
+  - paragraph [ref=e137]: "You can revoke Calify’s access to Google Calendar:"
+  - list [ref=e138]:
+    - listitem [ref=e139]:
+      - text: Visit
+      - link "Google Account Permissions" [ref=e140] [cursor=pointer]:
+        - /url: https://myaccount.google.com/permissions
+    - listitem [ref=e141]: Find “Calify” and click “Remove Access”
+  - heading "API UsageAnchor" [level=3] [ref=e142]:
+    - text: API Usage
+    - link "Anchor" [ref=e143] [cursor=pointer]:
+      - /url: "#api-usage"
+      - text: 
+  - paragraph [ref=e144]: "Since you provide your own Gemini API key:"
+  - list [ref=e145]:
+    - listitem [ref=e146]: You control API usage and costs
+    - listitem [ref=e147]: You can monitor usage in Google AI Studio
+    - listitem [ref=e148]: You can delete or rotate your API key at any time
+  - heading "Children’s PrivacyAnchor" [level=2] [ref=e149]:
+    - text: Children’s Privacy
+    - link "Anchor" [ref=e150] [cursor=pointer]:
+      - /url: "#childrens-privacy"
+      - text: 
+  - paragraph [ref=e151]: Calify is not directed at children under 13. We do not knowingly collect data from children.
+  - heading "Changes to This PolicyAnchor" [level=2] [ref=e152]:
+    - text: Changes to This Policy
+    - link "Anchor" [ref=e153] [cursor=pointer]:
+      - /url: "#changes-to-this-policy"
+      - text: 
+  - paragraph [ref=e154]: "We may update this privacy policy. Changes will be reflected in:"
+  - list [ref=e155]:
+    - listitem [ref=e156]: The “Last Updated” date at the top
+    - listitem [ref=e157]: The extension changelog
+    - listitem [ref=e158]: The GitHub repository
+  - heading "Open SourceAnchor" [level=2] [ref=e159]:
+    - text: Open Source
+    - link "Anchor" [ref=e160] [cursor=pointer]:
+      - /url: "#open-source"
+      - text: 
+  - paragraph [ref=e161]: "Calify is open source. You can audit the code at:"
+  - list [ref=e162]:
+    - listitem [ref=e163]:
+      - text: "GitHub:"
+      - link "github.com/yourusername/calify" [ref=e164] [cursor=pointer]:
+        - /url: https://github.com/yourusername/calify
+  - heading "ContactAnchor" [level=2] [ref=e165]:
+    - text: Contact
+    - link "Anchor" [ref=e166] [cursor=pointer]:
+      - /url: "#contact"
+      - text: 
+  - paragraph [ref=e167]: "For privacy questions or concerns:"
+  - list [ref=e168]:
+    - listitem [ref=e169]:
+      - text: "Open an issue:"
+      - link "GitHub Issues" [ref=e170] [cursor=pointer]:
+        - /url: https://github.com/yourusername/calify/issues
+    - listitem [ref=e171]: "Email: privacy@example.com"
+  - heading "ComplianceAnchor" [level=2] [ref=e172]:
+    - text: Compliance
+    - link "Anchor" [ref=e173] [cursor=pointer]:
+      - /url: "#compliance"
+      - text: 
+  - list [ref=e174]:
+    - listitem [ref=e175]:
+      - strong [ref=e176]: GDPR
+      - text: ": Calify does not collect personal data for processing beyond temporary event extraction"
+    - listitem [ref=e177]:
+      - strong [ref=e178]: CCPA
+      - text: ": California residents have the right to know what data is collected (see above)"
+    - listitem [ref=e179]:
+      - strong [ref=e180]: Chrome Web Store
+      - text: ": Complies with Chrome Web Store Developer Program Policies"
+  - heading "SummaryAnchor" [level=2] [ref=e181]:
+    - text: Summary
+    - link "Anchor" [ref=e182] [cursor=pointer]:
+      - /url: "#summary"
+      - text: 
+  - paragraph [ref=e183]: "In plain English:"
+  - list [ref=e184]:
+    - listitem [ref=e185]: Calify only sees what you explicitly capture
+    - listitem [ref=e186]: Screenshots are processed and immediately deleted
+    - listitem [ref=e187]: Your API key and preferences stay on your device
+    - listitem [ref=e188]: No tracking, analytics, or data collection
+    - listitem [ref=e189]: You control your Google Calendar access
+    - listitem [ref=e190]: Everything is open source and auditable
