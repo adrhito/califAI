@@ -1,173 +1,123 @@
-# Privacy Policy for Calify
+# Privacy Policy — CalifAI
 
-Last Updated: June 4, 2026
+**Last updated: June 2026**
 
-## Overview
+This Privacy Policy describes how CalifAI ("the Extension", "we", "us") handles your information. By using CalifAI, you agree to the practices described below.
 
-Calify is committed to protecting your privacy. This privacy policy explains how Calify handles your data when you use the Chrome extension.
+---
 
-## Data Collection and Usage
+## Who We Are
 
-### What Data We Access
+CalifAI is a Chrome browser extension developed and maintained by Adrian Hito. Contact: ahito246@gmail.com
 
-1. **Screen Captures**
-   - When: Only when you click "Capture Event"
-   - What: Screenshot of the active browser tab
-   - Purpose: Extract calendar event information using AI
-   - Storage: Temporarily held in memory during processing only
-   - Retention: Immediately discarded after AI processing completes
+---
 
-2. **API Keys**
-   - What: Your Gemini API key
-   - Storage: chrome.storage.local (encrypted by Chrome)
-   - Purpose: Authenticate requests to Gemini API
-   - Access: Never transmitted except to Gemini API
+## What Data CalifAI Collects
 
-3. **Google Calendar Access**
-   - What: OAuth tokens for Google Calendar API
-   - Storage: Managed by chrome.identity API
-   - Purpose: Create events in your Google Calendar
-   - Scopes: calendar.events (create events) and calendar.readonly (list calendars)
+### 1. Website Content (Screenshot Data)
+When you use CalifAI to capture an event, a screenshot of the area you selected on the current webpage is created. This screenshot is sent to your chosen AI provider (Google Gemini or OpenAI) to extract event details such as title, date, time, and location.
 
-4. **Event Data**
-   - What: Extracted calendar event details
-   - Storage: chrome.storage.session (cleared when browser closes)
-   - Purpose: Allow you to review and edit before importing
-   - Retention: Until you close the browser or manually reset
+- The screenshot contains only the portion of the page you explicitly dragged to select
+- It is sent directly from your browser to the AI provider's API
+- It is not stored on any CalifAI server (there is none)
+- It is subject to the privacy policy of your chosen AI provider:
+  - Google Gemini: https://policies.google.com/privacy
+  - OpenAI: https://openai.com/privacy
 
-5. **User Preferences**
-   - What: Default timezone and other settings
-   - Storage: chrome.storage.local
-   - Purpose: Personalize your experience
+### 2. API Keys
+Your AI provider API key (Gemini or OpenAI) is stored locally in Chrome's `chrome.storage.local` on your own device. It is never transmitted to any CalifAI server or any party other than the AI provider when making an extraction request.
 
-### What We Don't Collect
+### 3. User Preferences and Settings
+The following settings are stored locally on your device in `chrome.storage.local`:
+- AI provider selection (Gemini or OpenAI)
+- Color theme preferences (primary and secondary colors)
+- Time format preference (12-hour or 24-hour)
+- Date format preference (US or ISO)
+- Default event color
+- Default reminder settings
 
-- ❌ No browsing history
-- ❌ No personal information beyond what you explicitly provide
-- ❌ No analytics or telemetry
-- ❌ No tracking cookies
-- ❌ No crash reports
-- ❌ No usage statistics
-- ❌ No event history after import
+None of these are transmitted externally.
 
-## Data Transmission
+### 4. Session State
+Temporary session data (current view, captured events, selected events) is stored in `chrome.storage.session` and is automatically cleared when you close the browser. It never leaves your device.
 
-### Third-Party Services
+### 5. Google Account Access
+When you connect your Google account to add events to Google Calendar, CalifAI uses Google's OAuth 2.0 flow via `chrome.identity`. The resulting access token is stored locally in `chrome.storage.local` and is used only to call the Google Calendar API to create events. CalifAI does not access, read, or store any calendar data beyond what is needed to create a new event.
 
-Calify communicates with two external services:
+### 6. Usage Analytics (Future)
+CalifAI may in future versions collect anonymized, aggregated usage data (for example: how often captures are performed, which AI provider is used) to improve the product. If and when this is implemented, this policy will be updated and users will be notified. No such data is collected in the current version.
 
-1. **Google Gemini API**
-   - Purpose: AI-powered event extraction from screenshots
-   - Data Sent: Screenshot images (JPEG), your API key
-   - Data Received: Structured event information
-   - Privacy: Subject to [Google's Privacy Policy](https://policies.google.com/privacy)
-   - Note: We use YOUR API key; Google bills you directly for API usage
+---
 
-2. **Google Calendar API**
-   - Purpose: Create calendar events, list calendars
-   - Data Sent: Event details, OAuth tokens
-   - Data Received: Created event information
-   - Privacy: Subject to [Google's Privacy Policy](https://policies.google.com/privacy)
-   - Note: Uses standard OAuth2 flow; Calify never sees your password
+## What Data CalifAI Does Not Collect
 
-### No Other External Servers
+- Your name, email address, or any personally identifiable information
+- Your browsing history or the URLs of pages you visit
+- The full contents of any webpage — only the screenshot of the area you select
+- Payment or financial information
+- Health information
+- Any data from pages where you do not actively trigger a capture
 
-- Calify does NOT use any backend servers
-- All processing happens locally in your browser
-- No data is sent to Calify developers or third parties (except as noted above)
+---
 
-## Data Security
+## How Data Is Used
 
-### Local Storage Security
+| Data | Purpose |
+|------|---------|
+| Selected screenshot | Sent to AI provider to extract event details |
+| API key | Authenticate requests to the AI provider API |
+| Google OAuth token | Create events in Google Calendar on your behalf |
+| Settings | Personalize the extension UI and defaults |
 
-- All local data is stored using Chrome's storage APIs
-- Chrome encrypts storage on disk
-- Storage is isolated per-extension (other extensions cannot access it)
+---
 
-### Screenshot Handling
+## Data Sharing and Third Parties
 
-1. Screenshot captured when you click "Capture Event"
-2. Converted to JPEG (85% quality) for efficient transmission
-3. Sent to Gemini API for processing
-4. Response received and parsed
-5. Screenshot immediately garbage collected (never saved to disk)
+CalifAI does not sell, rent, or trade your data.
 
-### API Key Security
+The only third parties that receive any data are:
 
-- Stored in chrome.storage.local (encrypted by Chrome)
-- Never logged or displayed in plain text (password field in UI)
-- Only transmitted over HTTPS to Gemini API
-- Never sent to any other service
+- **Google Gemini API** — receives the selected screenshot if Gemini is your chosen provider
+- **OpenAI API** — receives the selected screenshot if OpenAI is your chosen provider
+- **Google Calendar API** — receives new event details (title, date, time, location) to create calendar entries
 
-### OAuth Token Security
+No other parties receive any data.
 
-- Managed entirely by Chrome's identity API
-- Calify never directly accesses refresh tokens
-- Access tokens are automatically refreshed when expired
-- Tokens are revocable from your Google Account settings
+---
 
-## Your Rights and Controls
+## Data Retention
 
-### Data Access
+- Screenshot data: not retained by CalifAI. Retention by the AI provider is governed by their own policies.
+- API keys and settings: retained locally on your device until you uninstall the extension or clear Chrome's extension storage.
+- Session state: cleared automatically when the browser is closed.
+- Google OAuth token: retained locally until it expires or you disconnect your Google account from the extension.
 
-You can access all data Calify stores:
-- API Key: Open extension options page
-- Preferences: Open extension options page
-- Session State: Visible in the extension popup
+---
 
-### Data Deletion
+## Your Rights and Choices
 
-You can delete all Calify data:
-1. Right-click the extension icon → "Remove from Chrome"
-2. Or manually: Chrome Storage → Clear extension data
+- **Remove your API key**: open CalifAI Settings and clear the API key field at any time
+- **Disconnect Google Calendar**: revoke CalifAI's access at myaccount.google.com/permissions
+- **Delete all local data**: uninstalling the extension removes all locally stored data
+- **Switch AI providers**: you can switch between Gemini and OpenAI at any time in Settings
 
-### Google Calendar Access
-
-You can revoke Calify's access to Google Calendar:
-1. Visit [Google Account Permissions](https://myaccount.google.com/permissions)
-2. Find "Calify" and click "Remove Access"
-
-### API Usage
-
-Since you provide your own Gemini API key:
-- You control API usage and costs
-- You can monitor usage in Google AI Studio
-- You can delete or rotate your API key at any time
+---
 
 ## Children's Privacy
 
-Calify is not directed at children under 13. We do not knowingly collect data from children.
+CalifAI is not directed at children under the age of 13. We do not knowingly collect any information from children.
+
+---
 
 ## Changes to This Policy
 
-We may update this privacy policy. Changes will be reflected in:
-- The "Last Updated" date at the top
-- The extension changelog
-- The GitHub repository
+If this policy changes materially, the "Last updated" date at the top will be revised. Continued use of the extension after changes constitutes acceptance of the updated policy.
 
-## Open Source
-
-Calify is open source. You can audit the code at:
-- GitHub: [github.com/yourusername/calify](https://github.com/yourusername/calify)
+---
 
 ## Contact
 
-For privacy questions or concerns:
-- Open an issue: [GitHub Issues](https://github.com/yourusername/calify/issues)
-- Email: privacy@example.com
+For privacy questions or concerns, contact:
 
-## Compliance
-
-- **GDPR**: Calify does not collect personal data for processing beyond temporary event extraction
-- **CCPA**: California residents have the right to know what data is collected (see above)
-- **Chrome Web Store**: Complies with Chrome Web Store Developer Program Policies
-
-## Summary
-
-In plain English:
-- Calify only sees what you explicitly capture
-- Screenshots are processed and immediately deleted
-- Your API key and preferences stay on your device
-- No tracking, analytics, or data collection
-- You control your Google Calendar access
-- Everything is open source and auditable
+**Adrian Hito**
+ahito246@gmail.com
