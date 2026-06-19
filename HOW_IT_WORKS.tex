@@ -1,0 +1,397 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{parskip}
+
+\title{CalifAI: How Everything Works\\
+\large A Chrome Extension for Capturing Calendar Events with AI}
+\author{Adrian Hito}
+\date{June 2026}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ===================================================================
+\section{What the Extension Does}
+
+CalifAI is a Chrome extension (Manifest V3) that turns anything visible on a
+webpage into Google Calendar events in three steps:
+
+\begin{enumerate}
+  \item \textbf{Capture}: the user screenshots either the full visible tab or a
+        dragged selection of the page.
+  \item \textbf{Extract}: the screenshot is sent to a vision-capable AI model
+        (Google Gemini 2.5 Flash by default, OpenAI GPT-4o-mini as an
+        alternative) which returns structured JSON describing every calendar
+        event it can find: title, start/end times, location, description,
+        recurrence rules, and all-day status.
+  \item \textbf{Import}: the user reviews and edits the extracted events, then
+        the extension creates them in Google Calendar via the Calendar REST
+        API using OAuth.
+\end{enumerate}
+
+% ===================================================================
+\section{Tech Stack and Project Layout}
+
+\begin{itemize}
+  \item \textbf{WXT} -- the extension build framework (wraps Vite). Configured
+        in \texttt{wxt.config.ts}, which also defines the manifest
+        (permissions, OAuth client ID, scopes). Output goes to
+        \texttt{.output/chrome-mv3/}.
+  \item \textbf{React + TypeScript} -- the popup and options page UIs.
+  \item \textbf{Zustand} -- popup state management
+        (\texttt{hooks/useAppState.ts}), persisted to
+        \texttt{chrome.storage.session} on every mutation.
+  \item \textbf{Zod} -- runtime validation of AI responses
+        (\texttt{lib/ai/schema.ts}).
+\end{itemize}
+
+The extension has three execution contexts:
+
+\begin{description}
+  \item[Popup] (\texttt{entrypoints/popup/}) -- the React app the user sees.
+        It dies whenever it loses focus, which drives much of the
+        architecture.
+  \item[Background service worker] (\texttt{entrypoints/background/}) -- does
+        everything privileged: screen capture, AI calls, OAuth, Calendar API.
+        MV3 service workers are killed aggressively by Chrome when idle.
+  \item[Content script] (\texttt{entrypoints/content.ts}) -- injected into the
+        page to draw the drag-to-select overlay and report the selected
+        rectangle back.
+\end{description}
+
+These three communicate via \texttt{chrome.runtime.sendMessage} with a typed
+protocol (\texttt{lib/messaging/types.ts}). The popup sends messages such as
+\texttt{CAPTURE\_AND\_EXTRACT}, \texttt{CREATE\_EVENTS},
+\texttt{AUTHORIZE\_GOOGLE}; the service worker routes them in
+\texttt{lib/messaging/handlers.ts}.
+
+% ===================================================================
+\section{Popup State Machine}
+
+The popup is a view router (\texttt{entrypoints/popup/App.tsx}) switching on a
+single \texttt{view} field:
+\texttt{setup} $\rightarrow$ \texttt{home} $\rightarrow$ \texttt{loading}
+$\rightarrow$ \texttt{event-selection} / \texttt{review} $\rightarrow$
+\texttt{edit} $\rightarrow$ \texttt{importing} $\rightarrow$ \texttt{success},
+with \texttt{error} reachable from anywhere.
+
+Key state fields (\texttt{types/app-state.ts}): \texttt{events} (the working
+list), \texttt{currentEvent}, \texttt{selectedEventIndices} (multi-select),
+\texttt{viewHistory} (a stack enabling \texttt{goBack()}), \texttt{error}
+(interrupting), and \texttt{notice} (a non-interrupting banner, e.g.\ ``Added
+3 events'').
+
+\textbf{Persistence and hydration.} Every state change is saved to
+\texttt{chrome.storage.session} under the key \texttt{appState}. When the
+popup opens, \texttt{hydrate()} restores it. Crucially, \texttt{App.tsx}
+renders \emph{nothing} until hydration completes: if it rendered the default
+state first, a phantom \texttt{HomeView} would mount, start its own
+capture-result handler, and race the real view's handler (this once caused a
+bug where the home handler \emph{replaced} the user's event list while the
+real handler then saw every new event as a duplicate).
+
+\textbf{Navigation rules.} \texttt{setView} pushes the previous view onto
+\texttt{viewHistory} unless the previous view was \texttt{loading} or
+\texttt{edit} (transient views never become ``back'' targets). The Cancel
+button on the loading view therefore calls \texttt{goBack()} -- returning to
+home for initial captures, or to review/event-selection for ``Capture More''
+-- after clearing the pending-capture flags.
+
+% ===================================================================
+\section{The Capture Pipeline}
+
+\subsection{Full-screen capture}
+
+Simple, synchronous round trip: popup sends \texttt{CAPTURE\_AND\_EXTRACT}
+with \texttt{useSelection: false}; the worker calls
+\texttt{chrome.tabs.captureVisibleTab} (JPEG, quality 85), runs extraction,
+and returns the events in the message response. The popup stays open the
+whole time showing the loading view.
+
+\subsection{Area selection capture (the interesting one)}
+
+Chrome has \textbf{no API to capture a sub-region} of a page --
+\texttt{captureVisibleTab} always returns the full viewport. Additionally,
+the popup \textbf{closes itself} so the user can interact with the page. The
+flow:
+
+\begin{enumerate}
+  \item Popup clears stale capture state, records
+        \texttt{lastCaptureMode = 'area'} in session storage, fires the
+        message, and calls \texttt{window.close()}.
+  \item The worker pings the content script (injecting it via
+        \texttt{chrome.scripting} if absent) and sends
+        \texttt{START\_SELECTION}.
+  \item The content script draws a full-screen overlay with a crosshair
+        cursor and a selection box (the dark surround is a huge
+        \texttt{box-shadow}). On mouse-up it returns the rectangle in CSS
+        pixels plus \texttt{window.devicePixelRatio}. Selections under
+        $10\times10$ px are rejected as accidental clicks (originally
+        $50\times50$, which wrongly rejected single event rows).
+  \item The worker captures the full viewport, then \emph{immediately} crops
+        to the selection in an \texttt{OffscreenCanvas}
+        (\texttt{lib/utils/image-crop.ts}). CSS coordinates are multiplied by
+        \texttt{devicePixelRatio}, which in Chrome already incorporates page
+        zoom, so the mapping to bitmap pixels is exact. The crop and the
+        downscale to the provider's target width (768px for Gemini, 1280px
+        for OpenAI) happen in \emph{one} canvas pass with a single JPEG
+        encode (quality 0.7). The full-frame image exists only transiently in
+        worker memory -- it is never stored or transmitted.
+  \item The worker writes \texttt{processingCapture: true} and
+        \texttt{processingStartedAt} (a timestamp) to session storage,
+        reopens the popup via \texttt{chrome.action.openPopup()} (3 retries;
+        falls back to a desktop notification), and continues extraction in
+        the background.
+  \item When done, it writes \texttt{captureComplete: true} plus either
+        \texttt{captureResult} or \texttt{captureError}.
+\end{enumerate}
+
+\subsection{How the reopened popup picks up the result}
+
+The popup and the worker share a small contract in
+\texttt{lib/storage/capture-session.ts}:
+
+\begin{itemize}
+  \item \texttt{waitForCaptureCompletion()} resolves the moment the result
+        lands, by listening to \texttt{chrome.storage.session.onChanged}
+        (instant) with a 2-second fallback poll (in case an event is missed)
+        and a 2-minute timeout. It resolves with one of three statuses:
+        \texttt{complete}, \texttt{timeout}, or \texttt{cancelled} (the
+        processing flag disappeared without a result, i.e.\ the user pressed
+        Cancel).
+  \item \textbf{Staleness protection}: a \texttt{processingCapture} flag older
+        than 2 minutes (per \texttt{processingStartedAt}) is treated as
+        garbage left by a killed service worker. Without this, one crashed
+        extraction permanently trapped the popup in an infinite loading loop
+        (Cancel went home, home saw the flag, bounced back to loading).
+  \item Cancel on the loading view calls \texttt{clearCaptureSession()}
+        \emph{before} navigating, so no view re-detects the flag.
+\end{itemize}
+
+Who waits depends on where the user was: \texttt{HomeView} handles initial
+captures (it \emph{replaces} the event list), while the shared
+\texttt{useCaptureMore} hook (mounted by both ReviewView and
+EventSelectionView) handles ``Capture More'' (it \emph{merges}).
+
+\subsection{Capture More and merging}
+
+``Capture More'' reuses whatever mode the user originally chose
+(\texttt{lastCaptureMode}). Results are merged into the existing list with
+duplicate detection keyed on \texttt{title + startDate}. Outcomes
+\emph{never} route to the error view (that would strand the user away from
+their events); instead the user always lands on the event list with a
+\texttt{notice} banner: ``Added $X$ events ($Y$ duplicates skipped)'',
+``Everything you captured is already on the list'', or ``No new events found
+in that capture''. The banner auto-dismisses after 5 seconds.
+
+% ===================================================================
+\section{AI Extraction}
+
+\subsection{Provider abstraction}
+
+\texttt{lib/ai/provider-registry.ts} maps a name to an \texttt{AIProvider}
+implementation with one method: \texttt{extractEvents(imageBase64, apiKey)}.
+Two providers exist: Gemini (default, free tier) and OpenAI.
+\texttt{lib/ai/extraction.ts} orchestrates: throttle (min 1s between
+requests), read settings, resize the image if it is still wider than the
+provider target (skipped entirely when the crop already downscaled it), and
+dispatch.
+
+\subsection{The prompt}
+
+\texttt{lib/ai/extraction-prompt.ts} exports
+\texttt{getExtractionPrompt()}. Design points:
+
+\begin{itemize}
+  \item Detailed rules: extract \emph{every} event; never hallucinate; if an
+        event has a start time but no end time, add exactly one hour; date
+        only $\Rightarrow$ all-day event; detect recurrence keywords
+        (``every Monday'', ``bi-weekly'', ``8 sessions'') and map them to
+        frequency/interval/count/until/byDay.
+  \item The long instruction body is \textbf{byte-identical across requests},
+        and the current date (day granularity plus weekday, e.g.\ ``Current
+        date: Wednesday, 2026-06-10'') is appended at the \emph{end}. A
+        stable prefix lets Gemini's implicit prompt caching discount and
+        speed up repeat requests; the original code embedded a
+        millisecond-precision timestamp at the \emph{start}, which defeated
+        caching entirely.
+\end{itemize}
+
+\subsection{Gemini specifics (\texttt{lib/ai/gemini-provider.ts})}
+
+\begin{itemize}
+  \item Model \texttt{gemini-2.5-flash} via the
+        \texttt{generativelanguage.googleapis.com} REST endpoint.
+  \item The API key is sent in the \texttt{x-goog-api-key} \textbf{header},
+        not the legacy \texttt{?key=} query parameter. This matters because
+        Google's newer \texttt{AQ.}-prefix ``auth keys'' are misparsed as
+        OAuth tokens when sent as a query parameter, producing the confusing
+        401 ``Request had invalid authentication credentials. Expected OAuth
+        2 access token\ldots'' (\texttt{ACCESS\_TOKEN\_TYPE\_UNSUPPORTED}).
+        That error looks like a Google-account problem but is an API-key
+        transport problem.
+  \item \texttt{thinkingConfig: \{ thinkingBudget: 0 \}} -- Gemini 2.5 Flash
+        runs hidden ``dynamic thinking'' by default, which adds large latency
+        and burns output tokens. Structured extraction with a strict schema
+        doesn't need it; disabling it is the single biggest speed win and
+        also reduces token consumption.
+  \item \texttt{responseMimeType: application/json} plus a strict
+        \texttt{responseSchema} forces valid JSON matching the event shape.
+        The schema deliberately has \emph{no} \texttt{reasoning} field --
+        generating an explanation paragraph nobody reads wasted output tokens
+        (the slowest part of any LLM response) on every capture.
+  \item Retries: up to 3 attempts with exponential backoff (2s/4s/8s), but
+        only for transient errors (503 ``high demand'', quota). Error
+        mapping translates Google's raw messages into actionable ones:
+        quota $\rightarrow$ ``check your limits''; 400/401/403 key problems
+        $\rightarrow$ ``Gemini rejected your API key'' (deliberately
+        \emph{not} echoing the OAuth-sounding raw text); truncated JSON
+        $\rightarrow$ ``capture fewer events at once''.
+\end{itemize}
+
+\subsection{Validation}
+
+Responses are parsed with Zod (\texttt{AIExtractionResponseSchema}). A
+transform scrubs junk the model sometimes emits in text fields (e.g.\
+\texttt{location: "(no location given)"} becomes \texttt{undefined}).
+
+% ===================================================================
+\section{Google OAuth}
+
+\subsection{Why \texttt{launchWebAuthFlow} and not \texttt{getAuthToken}}
+
+\texttt{chrome.identity.getAuthToken} is pinned to the Chrome profile's
+signed-in account: it can \emph{never} show Google's account chooser, so
+``switch account'' was impossible, and Chrome caches tokens that Google has
+already revoked (causing mysterious 401s that a naive cache check cannot
+detect). The extension therefore uses
+\texttt{chrome.identity.launchWebAuthFlow}
+(\texttt{entrypoints/background/google-auth.ts}):
+
+\begin{itemize}
+  \item \textbf{Implicit grant}: the auth URL requests
+        \texttt{response\_type=token}; the access token comes back in the
+        redirect URL fragment. No client secret is involved (and none should
+        ever ship in an extension).
+  \item \textbf{Redirect URI}: \texttt{https://<extension-id>.chromiumapp.org/}
+        -- a virtual address Chrome intercepts. It must be registered as an
+        authorized redirect URI on a \emph{Web application} OAuth client in
+        Google Cloud Console (extension-type clients reject it).
+  \item \textbf{Connect / Switch account}: always an interactive flow with
+        \texttt{prompt=select\_account}, which lands directly on Google's
+        ``Choose an account'' page. The existing grant is deliberately
+        \emph{not} revoked first -- revoking forces full re-consent, which
+        shows the scary ``Google hasn't verified this app'' page (the consent
+        screen is in testing mode, so only listed test users can authorize,
+        and first-time consent always shows the unverified warning).
+  \item \textbf{Token storage}: access token and expiry live in
+        \texttt{chrome.storage.local} (\texttt{googleAccessToken},
+        \texttt{googleTokenExpiresAt}). Tokens are refreshed silently
+        (\texttt{interactive: false}, \texttt{prompt=none}) using a stored
+        \texttt{login\_hint} (the connected account's email) so Google knows
+        which session to mint for without UI.
+  \item \textbf{Cancel safety}: closing the chooser rejects the flow; the
+        stored token is only replaced after \emph{successful} auth, so the
+        current account stays connected and displayed.
+  \item \texttt{AuthRequiredError} (code \texttt{AUTH\_REQUIRED}) is thrown
+        when reconnection is genuinely required; the error view recognizes it
+        (and auth-flavored message text) and shows a \textbf{Connect Google
+        Account} button instead of a useless ``Try Again''.
+\end{itemize}
+
+\subsection{Calendar API (\texttt{google-calendar.ts})}
+
+\texttt{makeAuthenticatedRequest} attaches \texttt{Authorization: Bearer
+<token>}. On a 401 it discards the stored token and retries once with a
+freshly minted one; if that also 401s, it throws
+\texttt{AuthRequiredError} with a human message rather than leaking Google's
+raw error. Event conversion maps the internal event shape to the Calendar v3
+body: all-day events use \texttt{date} (not \texttt{dateTime}); timed events
+attach the local IANA timezone; recurrence becomes an RFC~5545
+\texttt{RRULE} string (\texttt{FREQ}, \texttt{INTERVAL}, \texttt{COUNT},
+\texttt{UNTIL}, \texttt{BYDAY}); reminders become
+\texttt{reminders.overrides}; an optional \texttt{colorId} (1--11) colors the
+event.
+
+% ===================================================================
+\section{Error-Handling Philosophy}
+
+\begin{itemize}
+  \item \textbf{Classify, then act.} The error view inspects the message/code
+        and offers the action that can actually fix it: auth errors
+        $\rightarrow$ Connect Google Account; API-key and rate-limit errors
+        $\rightarrow$ Change API Keys (opens settings); selection errors
+        (too small / cancelled) $\rightarrow$ Capture Again \emph{relaunches
+        the selection overlay directly} (it resets the persisted view to
+        home first so the reopened popup picks up the pending result);
+        everything else $\rightarrow$ Try Again / Capture Again.
+  \item \textbf{Never strand the user.} Merge outcomes use the
+        \texttt{notice} banner instead of the error view; Cancel goes
+        \emph{back}, not home; cancelling auth keeps the current account.
+  \item \textbf{Never trust a flag without a timestamp.} Anything a killable
+        service worker writes (\texttt{processingCapture}) carries
+        \texttt{processingStartedAt} and is ignored when stale.
+\end{itemize}
+
+% ===================================================================
+\section{Performance Decisions (and Why)}
+
+\begin{enumerate}
+  \item \textbf{Thinking disabled} (\texttt{thinkingBudget: 0}): the largest
+        latency reduction, also cheaper.
+  \item \textbf{Fewer output tokens}: no \texttt{reasoning} field; output
+        tokens dominate response time.
+  \item \textbf{Cache-friendly prompt}: stable prefix, day-granularity date
+        at the end.
+  \item \textbf{Single-pass image pipeline}: crop + downscale + encode once
+        (was: three JPEG encode/decode generations, which also blurred the
+        text the model must read).
+  \item \textbf{No dead storage writes}: the full captured image was once
+        written to session storage and never read -- a megabyte-class
+        serialization on the critical path, removed.
+  \item \textbf{Event-driven results}: \texttt{storage.onChanged} instead of
+        500\,ms polling (average 250\,ms saved after extraction finishes).
+  \item \textbf{Image sizing}: Gemini tiles images at $768\times768$; sending
+        768px-wide images minimizes vision tokens.
+\end{enumerate}
+
+% ===================================================================
+\section{Likely Quiz Questions}
+
+\begin{description}
+  \item[Why does the popup close during area selection?] Chrome popups cannot
+        coexist with page interaction; the overlay needs mouse events on the
+        page. State is handed off through \texttt{chrome.storage.session}
+        because the popup's JS context is destroyed.
+  \item[Why capture the whole screen and crop?] There is no region-capture
+        API in Chrome extensions. The full frame lives only in worker memory
+        for milliseconds; only the crop is stored/sent.
+  \item[Why did ``invalid authentication credentials'' appear on capture?]
+        The Gemini API key (new \texttt{AQ.} format) was sent as
+        \texttt{?key=} and misparsed as an OAuth token. Fix: send keys via
+        \texttt{x-goog-api-key} header.
+  \item[Why \texttt{launchWebAuthFlow}?] \texttt{getAuthToken} cannot show an
+        account chooser and caches revoked tokens. The web flow gives full
+        control (\texttt{prompt=select\_account}) at the cost of managing
+        token storage/refresh manually.
+  \item[How are duplicates detected when capturing more?] Set membership on
+        the composite key \texttt{title + startDate}.
+  \item[What stops an infinite loading loop if the worker dies?] The
+        timestamped processing flag: readers treat flags older than 2
+        minutes as failed, and Cancel clears the flags before navigating.
+  \item[Why render nothing before hydration?] To prevent a phantom HomeView
+        from racing the real view's capture handler and replacing the event
+        list.
+  \item[Where do API keys and tokens live?] \texttt{chrome.storage.local}
+        (persistent): AI keys, Google token, settings.
+        \texttt{chrome.storage.session} (cleared with the browser): app
+        state, capture handoff flags. Nothing sensitive is hardcoded.
+\end{description}
+
+\end{document}

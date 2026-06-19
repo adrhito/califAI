@@ -15,15 +15,20 @@ export type AppView =
 
 export interface AppState {
   view: AppView;
+  viewHistory: AppView[]; // Navigation history for back button
   events: CalifyEvent[];
   selectedEventIndex: number | null;
   selectedEventIndices: number[]; // For multi-select
+  editingEventIndex: number | null; // Which event is being edited (for multi-select)
   currentEvent: CalifyEvent | null;
   error: {
     message: string;
     code?: string;
     retryable: boolean;
   } | null;
+  // Transient informational banner (e.g. "Added 3 events") - unlike error,
+  // it doesn't interrupt the current view
+  notice: string | null;
   loading: {
     message: string;
     progress?: number;
@@ -35,11 +40,14 @@ export interface AppState {
 
 export const initialAppState: AppState = {
   view: 'home',
+  viewHistory: [],
   events: [],
   selectedEventIndex: null,
   selectedEventIndices: [],
+  editingEventIndex: null,
   currentEvent: null,
   error: null,
+  notice: null,
   loading: null,
   createdEventUrls: []
 };

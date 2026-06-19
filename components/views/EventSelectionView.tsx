@@ -1,15 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
-import Badge from '../ui/Badge';
+import CloseButton from '../ui/CloseButton';
 import { useAppState } from '../../hooks/useAppState';
+import { useCaptureMore } from '../../hooks/useCaptureMore';
 import { CalifyEvent } from '../../types/event';
 import { format } from 'date-fns';
 import './EventSelectionView.css';
 
 export default function EventSelectionView() {
-  const { events, setCurrentEvent, setSelectedEventIndices, setView } = useAppState();
+  const { events, notice, setNotice, setCurrentEvent, setSelectedEventIndices, setView, goBack, goHome } = useAppState();
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const { captureMore, capturingMore } = useCaptureMore();
+
+  // Clear selected indices from global state when component mounts
+  useEffect(() => {
+    setSelectedEventIndices([]);
+  }, []);
+
+  // Auto-dismiss the capture notice banner
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 5000);
+    return () => clearTimeout(timer);
+  }, [notice]);
 
   function handleToggleEvent(index: number) {
     const newSelected = new Set(selectedIndices);
@@ -21,6 +35,16 @@ export default function EventSelectionView() {
     setSelectedIndices(newSelected);
   }
 
+  function handleSelectAll() {
+    if (selectedIndices.size === events.length) {
+      // All selected, deselect all
+      setSelectedIndices(new Set());
+    } else {
+      // Select all
+      setSelectedIndices(new Set(events.map((_, index) => index)));
+    }
+  }
+
   function handleContinue() {
     if (selectedIndices.size === 1) {
       // Single event - go to review view
@@ -30,15 +54,25 @@ export default function EventSelectionView() {
     } else if (selectedIndices.size > 1) {
       // Multiple events - save indices and go to review
       setSelectedEventIndices(Array.from(selectedIndices));
+      // Set the first event as current for potential editing
+      setCurrentEvent(events[Array.from(selectedIndices)[0]]);
       setView('review');
     }
   }
 
-  function getConfidenceBadge(confidence: number) {
-    if (confidence >= 0.8) return <Badge variant="success" size="sm">High</Badge>;
-    if (confidence >= 0.6) return <Badge variant="warning" size="sm">Medium</Badge>;
-    return <Badge variant="error" size="sm">Low</Badge>;
+  function handleCancel() {
+    goBack();
   }
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        handleCancel();
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   function formatEventDate(event: CalifyEvent) {
     const startDate = new Date(event.startDate);
@@ -51,40 +85,95 @@ export default function EventSelectionView() {
     return `${format(startDate, 'MMM d, yyyy')} at ${format(startDate, 'h:mm a')} - ${format(endDate, 'h:mm a')}`;
   }
 
+  function formatRecurrence(event: CalifyEvent): string | null {
+    if (!event.recurrence) return null;
+
+    const { frequency, interval = 1, byDay, count, until } = event.recurrence;
+
+    const frequencyText = frequency === 'DAILY' ? 'day' :
+                         frequency === 'WEEKLY' ? 'week' :
+                         frequency === 'MONTHLY' ? 'month' : 'year';
+
+    let text = interval === 1 ? `Every ${frequencyText}` : `Every ${interval} ${frequencyText}s`;
+
+    if (byDay && byDay.length > 0) {
+      const dayNames = byDay.map(d => d.substring(0, 2)).join(', ');
+      text += ` on ${dayNames}`;
+    }
+
+    if (count) {
+      text += ` (${count} times)`;
+    } else if (until) {
+      text += ` until ${format(new Date(until), 'MMM d, yyyy')}`;
+    }
+
+    return text;
+  }
+
   return (
     <div className="event-selection-view">
+      <CloseButton onClick={goHome} title="Go to Home" />
       <div className="selection-header">
         <h2 className="selection-title">Multiple Events Found</h2>
-        <p className="selection-subtitle text-muted">
-          Select one or more events to add to your calendar
+        <div className="selection-subtitle-row">
+          <p className="selection-subtitle">
+            Select events to add
+          </p>
+          <div className="selection-select-all-top">
+            <input
+              type="checkbox"
+              id="selectAllTop"
+              checked={selectedIndices.size === events.length && events.length > 0}
+              onChange={handleSelectAll}
+            />
+            <label htmlFor="selectAllTop">Select All</label>
+          </div>
+        </div>
+        <p className="selection-capture-hint">
+          Missing events? Scroll the page to show more, zoom out (Ctrl/Cmd -), then click "Capture More"
         </p>
       </div>
+
+      {notice && (
+        <div className="selection-notice" onClick={() => setNotice(null)}>
+          {notice}
+        </div>
+      )}
 
       <div className="selection-list">
         {events.map((event, index) => (
           <Card
             key={index}
             className={`selection-card ${selectedIndices.has(index) ? 'selection-card-selected' : ''}`}
-            hoverable
             onClick={() => handleToggleEvent(index)}
           >
             <div className="selection-card-header">
-              <h3 className="selection-card-title">{event.title}</h3>
-              {event.confidence && getConfidenceBadge(event.confidence.overall)}
+              <h3 className="selection-card-title">
+                {event.title}
+                {event.recurrence && (
+                  <span className="recurring-badge"> RECURRING</span>
+                )}
+              </h3>
             </div>
 
-            <div className="selection-card-date text-muted text-sm">
+            <div className="selection-card-date">
               {formatEventDate(event)}
             </div>
 
+            {event.recurrence && (
+              <div className="selection-card-recurrence">
+                {formatRecurrence(event)}
+              </div>
+            )}
+
             {event.location && (
-              <div className="selection-card-location text-muted text-sm">
-                📍 {event.location}
+              <div className="selection-card-location">
+                LOC: {event.location}
               </div>
             )}
 
             {event.description && (
-              <div className="selection-card-description text-sm">
+              <div className="selection-card-description">
                 {event.description.substring(0, 100)}
                 {event.description.length > 100 && '...'}
               </div>
@@ -92,10 +181,7 @@ export default function EventSelectionView() {
 
             {selectedIndices.has(index) && (
               <div className="selection-card-checkmark">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" fill="var(--primary)" />
-                  <path d="M8 12L11 15L16 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                ✓
               </div>
             )}
           </Card>
@@ -104,15 +190,25 @@ export default function EventSelectionView() {
 
       <div className="selection-actions">
         <Button
-          fullWidth
+          variant="outline"
+          onClick={handleCancel}
+        >
+          Back
+        </Button>
+        <Button
+          variant="outline"
+          onClick={captureMore}
+          loading={capturingMore}
+        >
+          Capture More
+        </Button>
+        <Button
           disabled={selectedIndices.size === 0}
           onClick={handleContinue}
         >
           {selectedIndices.size === 0
-            ? 'Select Events'
-            : selectedIndices.size === 1
-            ? 'Continue with 1 Event'
-            : `Continue with ${selectedIndices.size} Events`}
+            ? 'Continue'
+            : `Continue (${selectedIndices.size})`}
         </Button>
       </div>
     </div>

@@ -1,7 +1,10 @@
+/* Two-Color Cards - Hard Lines */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--outline-variant);
-  border-radius: var(--radius-lg);
+  position: relative;
+  background: transparent;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 0;
+  overflow: visible;
   transition: all var(--transition-base);
 }
 
@@ -10,11 +13,11 @@
 }
 
 .card-padding-sm {
-  padding: var(--space-3);
+  padding: var(--space-4);
 }
 
 .card-padding-md {
-  padding: var(--space-4);
+  padding: var(--space-5);
 }
 
 .card-padding-lg {
@@ -22,8 +25,8 @@
 }
 
 .card-hoverable:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--outline);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
 }
 
 .card-clickable {
@@ -31,5 +34,5 @@
 }
 
 .card-clickable:active {
-  transform: translateY(1px);
+  transform: translate(2px, 2px);
 }

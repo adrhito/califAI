@@ -7,6 +7,7 @@ interface CardProps {
   padding?: 'none' | 'sm' | 'md' | 'lg';
   hoverable?: boolean;
   onClick?: () => void;
+  style?: React.CSSProperties;
 }
 
 export default function Card({
@@ -14,7 +15,8 @@ export default function Card({
   className = '',
   padding = 'md',
   hoverable = false,
-  onClick
+  onClick,
+  style
 }: CardProps) {
   const classes = [
     'card',
@@ -25,7 +27,7 @@ export default function Card({
   ].filter(Boolean).join(' ');
 
   return (
-    <div className={classes} onClick={onClick}>
+    <div className={classes} onClick={onClick} style={style}>
       {children}
     </div>
   );

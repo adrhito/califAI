@@ -1,31 +1,89 @@
+/* Two-Color Review View - Hard Lines */
 .review-view {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  min-height: 500px;
+  height: 500px;
+  max-height: 500px;
 }
 
 .review-header {
-  padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--outline-variant);
+  flex-shrink: 0;
+  padding: var(--space-5);
+  border-bottom: var(--border-width) solid var(--border-color);
 }
 
 .review-title {
-  font-size: var(--font-size-xl);
-  font-weight: 600;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
   margin-bottom: var(--space-1);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .review-subtitle {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
+  opacity: 0.6;
+}
+
+.review-capture-hint {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-top: var(--space-2);
+  font-style: italic;
+}
+
+.review-content {
+  flex: 1;
+  overflow-y: overlay;
+  scrollbar-gutter: auto;
+  padding: var(--space-4);
 }
 
 .review-event {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
+  padding: var(--space-4);
+  padding-top: var(--space-5);
+  padding-right: calc(var(--space-4) + 40px);
+  position: relative;
+}
+
+.review-event-edit-button {
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-3);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity var(--transition-base);
+  z-index: 1;
+}
+
+.review-event-edit-button:hover {
+  opacity: 1;
+}
+
+.review-event-title {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.recurring-badge-review {
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  padding: 3px 8px;
+  border: 2px solid currentColor;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .review-field {
@@ -34,35 +92,52 @@
   gap: var(--space-1);
 }
 
-.review-field-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
+.review-field-label {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.review-field-value {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .review-field-label {
   font-size: var(--font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--on-surface-variant);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
 }
 
 .review-field-value {
-  font-size: var(--font-size-base);
-  color: var(--on-surface);
-  line-height: var(--line-height-relaxed);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
 }
 
 .review-field-meta {
   margin-top: var(--space-1);
 }
 
+.review-field-recurring .review-field-value {
+  font-weight: 600;
+  font-style: italic;
+}
+
 .review-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--outline-variant);
+  flex-shrink: 0;
+  padding: var(--space-4);
+  border-top: var(--border-width) solid var(--border-color);
+  display: grid;
+  grid-template-columns: 85px auto 1fr;
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+.review-actions > button {
+  white-space: nowrap;
+}
+
+.review-actions > button:nth-child(2) {
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
 }

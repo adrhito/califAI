@@ -2,7 +2,11 @@
 @import '../popup/style.css';
 
 body {
-  background: var(--surface-variant);
+  background: var(--bg-primary);
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
 }
 
 .options {
@@ -16,50 +20,110 @@ body {
 
 .options-header h1 {
   font-size: var(--font-size-2xl);
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: var(--space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .options-section {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  padding: var(--space-5);
 }
 
 .options-section-title {
   font-size: var(--font-size-lg);
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: var(--space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .options-help {
   padding: var(--space-3);
-  background: var(--surface-variant);
-  border-radius: var(--radius-md);
-  line-height: var(--line-height-relaxed);
+  background: transparent;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 0;
+  line-height: 1.6;
 }
 
 .options-link {
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: 500;
+  color: #0066CC !important;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+  font-weight: 700;
+  transition: all var(--transition-base);
 }
 
 .options-link:hover {
-  text-decoration: underline;
+  color: #0052A3 !important;
+  text-decoration-thickness: 3px;
 }
 
 .options-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   padding-top: var(--space-4);
-  border-top: 1px solid var(--outline-variant);
+  border-top: var(--border-width) solid var(--border-color);
 }
 
 .options-footer {
   text-align: center;
-  line-height: var(--line-height-relaxed);
+  line-height: 1.6;
   padding: var(--space-4);
-  background: var(--surface);
-  border-radius: var(--radius-md);
+  background: transparent;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 0;
+  opacity: 0.6;
+}
+
+/* Remove default color picker styling */
+.color-picker {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+  padding: 0;
+  background: none;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border: none;
+}
+
+.color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
+/* react-colorful styling */
+.react-colorful {
+  border: var(--border-width) solid var(--border-color) !important;
+  border-radius: 0 !important;
+}
+
+.react-colorful__saturation {
+  border-radius: 0 !important;
+  border-bottom: var(--border-width) solid var(--border-color) !important;
+}
+
+.react-colorful__hue {
+  border-radius: 0 !important;
+  height: 24px !important;
+}
+
+.react-colorful__pointer {
+  width: 20px !important;
+  height: 20px !important;
+  border: 3px solid var(--border-color) !important;
+  border-radius: 0 !important;
+}
+
+/* API key input text color */
+input[type="password"] {
+  color: var(--color-burgundy-light) !important;
 }

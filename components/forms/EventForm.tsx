@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Input from '../ui/Input';
+import DateInput from '../ui/DateInput';
+import TimeInput from '../ui/TimeInput';
+import Calendar from '../ui/Calendar';
+import TimePicker from '../ui/TimePicker';
 import TextArea from '../ui/TextArea';
-import Select from '../ui/Select';
 import Button from '../ui/Button';
-import { CalifyEvent } from '../../types/event';
-import { formatDateForInput, formatTimeForInput, combineDateAndTime, COMMON_TIMEZONES } from '../../lib/utils/date';
+import RecurrenceEditor from './RecurrenceEditor';
+import { CalifyEvent, RecurrenceRule } from '../../types/event';
+import { formatDateForInput, formatTimeForInput, combineDateAndTime } from '../../lib/utils/date';
 import './EventForm.css';
 
 interface EventFormProps {
@@ -22,11 +26,28 @@ export default function EventForm({ event, onSave, onCancel }: EventFormProps) {
     startTime: event.isAllDay ? '09:00' : formatTimeForInput(event.startDate),
     endDate: formatDateForInput(event.endDate),
     endTime: event.isAllDay ? '17:00' : formatTimeForInput(event.endDate),
-    timezone: event.timezone,
     isAllDay: event.isAllDay
   });
 
+  const [recurrence, setRecurrence] = useState<RecurrenceRule | null>(event.recurrence || null);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [openCalendar, setOpenCalendar] = useState<'start' | 'end' | null>(null);
+  const [openTimePicker, setOpenTimePicker] = useState<'start' | 'end' | null>(null);
+  const calendarRef = useRef<HTMLDivElement>(null);
+  const timePickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (openCalendar && calendarRef.current) {
+      calendarRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [openCalendar]);
+
+  useEffect(() => {
+    if (openTimePicker && timePickerRef.current) {
+      timePickerRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [openTimePicker]);
 
   function handleChange(field: string, value: string | boolean) {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -84,11 +105,29 @@ export default function EventForm({ event, onSave, onCancel }: EventFormProps) {
       endDate: formData.isAllDay
         ? `${formData.endDate}T00:00:00`
         : combineDateAndTime(formData.endDate, formData.endTime),
-      timezone: formData.timezone,
-      isAllDay: formData.isAllDay
+      isAllDay: formData.isAllDay,
+      recurrence: recurrence || undefined
     };
 
     onSave(updatedEvent);
+  }
+
+  function handleCalendarChange(date: string) {
+    if (openCalendar === 'start') {
+      handleChange('startDate', date);
+    } else if (openCalendar === 'end') {
+      handleChange('endDate', date);
+    }
+    setOpenCalendar(null);
+  }
+
+  function handleTimePickerChange(time: string) {
+    if (openTimePicker === 'start') {
+      handleChange('startTime', time);
+    } else if (openTimePicker === 'end') {
+      handleChange('endTime', time);
+    }
+    setOpenTimePicker(null);
   }
 
   return (
@@ -128,55 +167,91 @@ export default function EventForm({ event, onSave, onCancel }: EventFormProps) {
       </div>
 
       <div className="form-row">
-        <Input
+        <DateInput
           label="Start Date"
-          type="date"
           value={formData.startDate}
-          onChange={(e) => handleChange('startDate', e.target.value)}
+          onChange={(value) => handleChange('startDate', value)}
           error={errors.startDate}
           fullWidth
           required
+          onClick={() => {
+            setOpenTimePicker(null);
+            setOpenCalendar(openCalendar === 'start' ? null : 'start');
+          }}
         />
         {!formData.isAllDay && (
-          <Input
+          <TimeInput
             label="Start Time"
-            type="time"
             value={formData.startTime}
-            onChange={(e) => handleChange('startTime', e.target.value)}
+            onChange={(value) => handleChange('startTime', value)}
             fullWidth
             required
+            onClick={() => {
+              setOpenCalendar(null);
+              setOpenTimePicker(openTimePicker === 'start' ? null : 'start');
+            }}
           />
         )}
       </div>
 
       <div className="form-row">
-        <Input
+        <DateInput
           label="End Date"
-          type="date"
           value={formData.endDate}
-          onChange={(e) => handleChange('endDate', e.target.value)}
-          error={errors.endDate}
+          onChange={(value) => handleChange('endDate', value)}
           fullWidth
           required
+          onClick={() => {
+            setOpenTimePicker(null);
+            setOpenCalendar(openCalendar === 'end' ? null : 'end');
+          }}
         />
         {!formData.isAllDay && (
-          <Input
+          <TimeInput
             label="End Time"
-            type="time"
             value={formData.endTime}
-            onChange={(e) => handleChange('endTime', e.target.value)}
+            onChange={(value) => handleChange('endTime', value)}
             fullWidth
             required
+            onClick={() => {
+              setOpenCalendar(null);
+              setOpenTimePicker(openTimePicker === 'end' ? null : 'end');
+            }}
           />
         )}
       </div>
+      {errors.endDate && (
+        <div className="form-error-message">{errors.endDate}</div>
+      )}
 
-      <Select
-        label="Timezone"
-        value={formData.timezone}
-        onChange={(e) => handleChange('timezone', e.target.value)}
-        options={COMMON_TIMEZONES}
-        fullWidth
+      {(openCalendar || openTimePicker) && (
+        <div className="form-picker-container">
+          {openCalendar && (
+            <div className="form-calendar-section" ref={calendarRef}>
+              <Calendar
+                value={openCalendar === 'start' ? formData.startDate : formData.endDate}
+                onChange={handleCalendarChange}
+                onClose={() => setOpenCalendar(null)}
+              />
+            </div>
+          )}
+
+          {openTimePicker && (
+            <div className="form-calendar-section" ref={timePickerRef}>
+              <TimePicker
+                value={openTimePicker === 'start' ? formData.startTime : formData.endTime}
+                onChange={handleTimePickerChange}
+                onClose={() => setOpenTimePicker(null)}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      <RecurrenceEditor
+        value={recurrence}
+        onChange={setRecurrence}
+        startDate={formData.startDate}
       />
 
       <div className="form-actions">

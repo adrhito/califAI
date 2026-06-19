@@ -9,21 +9,23 @@ export default defineConfig({
     permissions: [
       'activeTab',
       'identity',
-      'storage'
+      'storage',
+      'scripting',
+      'notifications'
     ],
     host_permissions: [
       'https://generativelanguage.googleapis.com/*',
-      'https://api.openai.com/*'
+      'https://api.openai.com/*',
+      'https://www.googleapis.com/*'
     ],
     oauth2: {
-      client_id: '29128209703-m2inv6blj306tqn2cbpavsuffu92g2et.apps.googleusercontent.com',
+      client_id: '29128209703-3e0pfupj87r6lp8d206k0j1ldj20d25e.apps.googleusercontent.com',
       scopes: [
         'https://www.googleapis.com/auth/calendar.events',
-        'https://www.googleapis.com/auth/calendar.readonly'
+        'https://www.googleapis.com/auth/calendar.readonly',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/userinfo.profile'
       ]
-    },
-    action: {
-      default_title: 'CalifAI - Add to Calendar'
     },
     web_accessible_resources: [
       {

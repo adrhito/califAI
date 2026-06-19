@@ -1,10 +1,16 @@
 import React from 'react';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
-import Badge from '../ui/Badge';
+import ColorPicker from '../ui/ColorPicker';
+import CloseButton from '../ui/CloseButton';
+import EditIcon from '../ui/EditIcon';
 import { useAppState } from '../../hooks/useAppState';
+import { useCaptureMore } from '../../hooks/useCaptureMore';
 import { sendToBackground } from '../../lib/messaging/send';
 import { format } from 'date-fns';
+import { formatDateForDisplay, formatTimeForDisplay } from '../../lib/utils/date';
+import { getSettings } from '../../lib/storage/settings';
+import type { CalifyEvent } from '../../types/event';
 import './ReviewView.css';
 
 export default function ReviewView() {
@@ -13,12 +19,42 @@ export default function ReviewView() {
     events,
     selectedEventIndices,
     setView,
+    setCurrentEvent,
+    setEditingEventIndex,
     setError,
     setLoading,
     setCreatedEventUrl,
-    setCreatedEventUrls
+    setCreatedEventUrls,
+    goBack,
+    goHome
   } = useAppState();
   const [importing, setImporting] = React.useState(false);
+  const { captureMore, capturingMore } = useCaptureMore();
+  const [timeFormat, setTimeFormat] = React.useState<'12h' | '24h'>('12h');
+  const [dateFormat, setDateFormat] = React.useState<'US' | 'ISO'>('US');
+  const [defaultEventColor, setDefaultEventColor] = React.useState<string>('');
+
+  // Track color selections for each event
+  const [eventColors, setEventColors] = React.useState<Record<number, string>>({});
+
+  React.useEffect(() => {
+    async function loadFormats() {
+      const settings = await getSettings();
+      setTimeFormat(settings.timeFormat || '12h');
+      setDateFormat(settings.dateFormat || 'US');
+      setDefaultEventColor(settings.defaultEventColor || '');
+
+      // Initialize event colors with default if available
+      if (settings.defaultEventColor && selectedEvents.length > 0) {
+        const initialColors: Record<number, string> = {};
+        selectedEvents.forEach((_, idx) => {
+          initialColors[idx] = settings.defaultEventColor!;
+        });
+        setEventColors(initialColors);
+      }
+    }
+    loadFormats();
+  }, []);
 
   const isMultipleEvents = selectedEventIndices.length > 1;
   const selectedEvents = isMultipleEvents
@@ -27,12 +63,6 @@ export default function ReviewView() {
 
   if (selectedEvents.length === 0) {
     return null;
-  }
-
-  function getConfidenceBadge(confidence: number) {
-    if (confidence >= 0.8) return <Badge variant="success">High</Badge>;
-    if (confidence >= 0.6) return <Badge variant="warning">Medium</Badge>;
-    return <Badge variant="error">Low</Badge>;
   }
 
   async function handleImport() {
@@ -55,11 +85,17 @@ export default function ReviewView() {
         }
       }
 
+      // Add selected colors to events (use eventColors, then defaultEventColor, then event.colorId)
+      const eventsWithColors = selectedEvents.map((event, idx) => ({
+        ...event,
+        colorId: eventColors[idx] || defaultEventColor || event.colorId
+      }));
+
       if (isMultipleEvents) {
         // Create multiple events
         const response = await sendToBackground({
           type: 'CREATE_EVENTS',
-          events: selectedEvents,
+          events: eventsWithColors,
           calendarId: 'primary'
         });
 
@@ -73,7 +109,7 @@ export default function ReviewView() {
         // Create single event
         const response = await sendToBackground({
           type: 'CREATE_EVENT',
-          event: selectedEvents[0],
+          event: eventsWithColors[0],
           calendarId: 'primary'
         });
 
@@ -96,31 +132,91 @@ export default function ReviewView() {
     }
   }
 
-  function handleEdit() {
+  function handleEdit(eventIndex: number) {
+    // Set the event to edit based on whether it's multi-select or single
+    if (isMultipleEvents) {
+      const actualEventIndex = selectedEventIndices[eventIndex];
+      setEditingEventIndex(actualEventIndex);
+      setCurrentEvent(events[actualEventIndex]);
+    } else {
+      setEditingEventIndex(null);
+    }
     setView('edit');
   }
 
-  function renderEventCard(event: typeof selectedEvents[0], showTitle: boolean = false) {
+  function handleBack() {
+    goBack();
+  }
+
+  function formatRecurrence(event: CalifyEvent): string {
+    if (!event.recurrence) return '';
+
+    const { frequency, interval = 1, byDay, count, until } = event.recurrence;
+
+    const frequencyText = frequency === 'DAILY' ? 'day' :
+                         frequency === 'WEEKLY' ? 'week' :
+                         frequency === 'MONTHLY' ? 'month' : 'year';
+
+    let text = interval === 1 ? `Every ${frequencyText}` : `Every ${interval} ${frequencyText}s`;
+
+    if (byDay && byDay.length > 0) {
+      const dayMap: Record<string, string> = {
+        'MO': 'Monday', 'TU': 'Tuesday', 'WE': 'Wednesday',
+        'TH': 'Thursday', 'FR': 'Friday', 'SA': 'Saturday', 'SU': 'Sunday'
+      };
+      const dayNames = byDay.map(d => dayMap[d] || d).join(', ');
+      text += ` on ${dayNames}`;
+    }
+
+    if (count) {
+      text += ` (${count} occurrence${count === 1 ? '' : 's'})`;
+    } else if (until) {
+      text += ` until ${format(new Date(until), 'MMMM d, yyyy')}`;
+    }
+
+    return text;
+  }
+
+  function renderEventCard(event: typeof selectedEvents[0], showTitle: boolean = false, eventIndex: number = 0) {
     const startDate = new Date(event.startDate);
     const endDate = new Date(event.endDate);
 
     return (
-      <Card className="review-event" key={event.title}>
+      <Card className="review-event" key={event.title} style={{ position: 'relative' }}>
+        <button
+          className="review-event-edit-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleEdit(eventIndex);
+          }}
+          title="Edit event"
+        >
+          <EditIcon size={18} />
+        </button>
         {showTitle && (
-          <h3 className="review-event-title" style={{ marginBottom: '1rem', fontSize: '1.1rem', fontWeight: 600 }}>
+          <h3 className="review-event-title" style={{ marginBottom: '1rem', fontSize: '1.1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             {event.title}
+            {event.recurrence && (
+              <span className="recurring-badge-review">RECURRING</span>
+            )}
           </h3>
         )}
 
         {!showTitle && (
           <div className="review-field">
-            <div className="review-field-header">
-              <span className="review-field-label">Title</span>
-              {event.confidence && getConfidenceBadge(event.confidence.title)}
-            </div>
+            <span className="review-field-label">Title</span>
             <div className="review-field-value">{event.title}</div>
           </div>
         )}
+
+        {/* Color picker */}
+        <div className="review-field">
+          <ColorPicker
+            label="Event Color"
+            value={eventColors[eventIndex]}
+            onChange={(colorId) => setEventColors(prev => ({ ...prev, [eventIndex]: colorId }))}
+          />
+        </div>
 
         {event.description && (
           <div className="review-field">
@@ -130,45 +226,35 @@ export default function ReviewView() {
         )}
 
         <div className="review-field">
-          <div className="review-field-header">
-            <span className="review-field-label">Date & Time</span>
-            {event.confidence && getConfidenceBadge(event.confidence.date)}
-          </div>
+          <span className="review-field-label">Date & Time</span>
           <div className="review-field-value">
             {event.isAllDay ? (
               <>
-                {format(startDate, 'MMMM d, yyyy')}
-                {startDate.getTime() !== endDate.getTime() && ` - ${format(endDate, 'MMMM d, yyyy')}`}
+                {formatDateForDisplay(event.startDate, dateFormat)}
+                {startDate.getTime() !== endDate.getTime() && ` - ${formatDateForDisplay(event.endDate, dateFormat)}`}
               </>
             ) : (
               <>
-                {format(startDate, 'MMMM d, yyyy')} at {format(startDate, 'h:mm a')}
+                {formatDateForDisplay(event.startDate, dateFormat)} at {formatTimeForDisplay(event.startDate, timeFormat)}
                 {' → '}
-                {format(endDate, 'h:mm a')}
+                {formatTimeForDisplay(event.endDate, timeFormat)}
               </>
             )}
-          </div>
-          <div className="review-field-meta text-muted text-xs">
-            {event.timezone}
           </div>
         </div>
 
         {event.location && (
           <div className="review-field">
-            <div className="review-field-header">
-              <span className="review-field-label">Location</span>
-              {event.confidence && getConfidenceBadge(event.confidence.location)}
-            </div>
+            <span className="review-field-label">Location</span>
             <div className="review-field-value">{event.location}</div>
           </div>
         )}
 
         {event.recurrence && (
-          <div className="review-field">
+          <div className="review-field review-field-recurring">
             <span className="review-field-label">Recurrence</span>
             <div className="review-field-value">
-              {event.recurrence.frequency}
-              {event.recurrence.interval && ` every ${event.recurrence.interval}`}
+              {formatRecurrence(event)}
             </div>
           </div>
         )}
@@ -191,32 +277,38 @@ export default function ReviewView() {
 
   return (
     <div className="review-view">
+      <CloseButton onClick={goHome} title="Go to Home" />
       <div className="review-header">
         <h2 className="review-title">
           {isMultipleEvents ? `Review ${selectedEvents.length} Events` : 'Review Event'}
         </h2>
-        <p className="review-subtitle text-muted">
+        <p className="review-subtitle">
           Verify the event details before adding to calendar
+        </p>
+        <p className="review-capture-hint">
+          Missing events? Scroll the page to show more, then click "Capture More"
         </p>
       </div>
 
-      {isMultipleEvents ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {selectedEvents.map(event => renderEventCard(event, true))}
-        </div>
-      ) : (
-        renderEventCard(selectedEvents[0], false)
-      )}
-
+      <div className="review-content">
+        {isMultipleEvents ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            {selectedEvents.map((event, idx) => renderEventCard(event, true, idx))}
+          </div>
+        ) : (
+          renderEventCard(selectedEvents[0], false, 0)
+        )}
+      </div>
 
       <div className="review-actions">
-        {!isMultipleEvents && (
-          <Button variant="outline" onClick={handleEdit} fullWidth>
-            Edit Details
-          </Button>
-        )}
+        <Button variant="outline" onClick={handleBack}>
+          Back
+        </Button>
+        <Button variant="outline" onClick={captureMore} loading={capturingMore}>
+          Capture More
+        </Button>
         <Button onClick={handleImport} loading={importing} fullWidth>
-          {isMultipleEvents ? `Add ${selectedEvents.length} Events to Calendar` : 'Add to Calendar'}
+          Add ({selectedEvents.length})
         </Button>
       </div>
     </div>

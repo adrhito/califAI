@@ -1,0 +1,113 @@
+.time-picker {
+  background: var(--bg-primary);
+  border: var(--border-width) solid var(--border-color);
+  padding: var(--space-4);
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.time-picker-header {
+  padding-bottom: var(--space-2);
+  border-bottom: var(--border-width) solid var(--border-color);
+}
+
+.time-picker-title {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.time-picker-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.time-picker-display-time {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  font-family: monospace;
+}
+
+.time-picker-period-toggle {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: var(--border-width) solid var(--border-color);
+  padding: var(--space-1) var(--space-2);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: all var(--transition-base);
+}
+
+.time-picker-period-toggle:hover {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.time-picker-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.time-picker-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.time-picker-column-header {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  padding-bottom: var(--space-1);
+  border-bottom: var(--border-width) solid var(--border-color);
+}
+
+.time-picker-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-1);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.time-picker-option {
+  background: var(--bg-primary);
+  border: var(--border-width) solid var(--border-color);
+  padding: var(--space-2);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  text-align: center;
+  transition: all var(--transition-base);
+}
+
+.time-picker-option:hover {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.time-picker-option-selected {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.time-picker-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: var(--border-width) solid var(--border-color);
+}

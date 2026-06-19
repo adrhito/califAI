@@ -10,6 +10,28 @@ export function formatTimeForInput(isoString: string): string {
   return format(new Date(isoString), 'HH:mm');
 }
 
+export function formatDateForDisplay(isoString: string, dateFormat: 'US' | 'ISO' = 'US'): string {
+  const date = new Date(isoString);
+  return dateFormat === 'US'
+    ? format(date, 'MM/dd/yyyy')
+    : format(date, 'yyyy-MM-dd');
+}
+
+export function formatTimeForDisplay(isoString: string, timeFormat: '12h' | '24h' = '12h'): string {
+  const date = new Date(isoString);
+  return timeFormat === '12h'
+    ? format(date, 'h:mm a')
+    : format(date, 'HH:mm');
+}
+
+export function formatDateTimeForDisplay(
+  isoString: string,
+  dateFormat: 'US' | 'ISO' = 'US',
+  timeFormat: '12h' | '24h' = '12h'
+): string {
+  return `${formatDateForDisplay(isoString, dateFormat)} ${formatTimeForDisplay(isoString, timeFormat)}`;
+}
+
 export function combineDateAndTime(date: string, time: string): string {
   return `${date}T${time}:00`;
 }
@@ -17,18 +39,3 @@ export function combineDateAndTime(date: string, time: string): string {
 export function getLocalTimezone(): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
-
-export const COMMON_TIMEZONES = [
-  { value: 'America/New_York', label: 'Eastern Time (ET)' },
-  { value: 'America/Chicago', label: 'Central Time (CT)' },
-  { value: 'America/Denver', label: 'Mountain Time (MT)' },
-  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
-  { value: 'America/Anchorage', label: 'Alaska Time (AKT)' },
-  { value: 'Pacific/Honolulu', label: 'Hawaii Time (HT)' },
-  { value: 'Europe/London', label: 'London (GMT/BST)' },
-  { value: 'Europe/Paris', label: 'Paris (CET/CEST)' },
-  { value: 'Asia/Tokyo', label: 'Tokyo (JST)' },
-  { value: 'Asia/Shanghai', label: 'Shanghai (CST)' },
-  { value: 'Asia/Kolkata', label: 'India (IST)' },
-  { value: 'Australia/Sydney', label: 'Sydney (AEDT/AEST)' }
-];

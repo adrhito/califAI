@@ -1,0 +1,182 @@
+/* Recurrence Editor Styles */
+.recurrence-editor {
+  border: var(--border-width) solid var(--border-color);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.recurrence-header {
+  margin-bottom: 0;
+}
+
+.recurrence-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+}
+
+.recurrence-toggle input[type="checkbox"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-color);
+  background: var(--bg-primary);
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-base);
+}
+
+.recurrence-toggle input[type="checkbox"]:hover {
+  border-color: var(--text-primary);
+}
+
+.recurrence-toggle input[type="checkbox"]:checked {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.recurrence-toggle input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.recurrence-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--border-width) solid var(--border-color);
+}
+
+.recurrence-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.recurrence-label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: fit-content;
+}
+
+.recurrence-weekdays {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.weekday-buttons {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.weekday-button {
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  min-width: 48px;
+  font-family: var(--font-family);
+}
+
+.weekday-button:hover {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.weekday-button-selected {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-color: var(--bg-secondary);
+}
+
+.recurrence-end {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.recurrence-end-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: var(--space-2);
+}
+
+.recurrence-end-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--font-size-sm);
+  flex-wrap: wrap;
+}
+
+.recurrence-end-option input[type="radio"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  background: var(--bg-primary);
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-base);
+}
+
+.recurrence-end-option input[type="radio"]:hover {
+  border-color: var(--text-primary);
+}
+
+.recurrence-end-option input[type="radio"]:checked {
+  border-color: var(--bg-secondary);
+}
+
+.recurrence-end-option input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+}
+
+.recurrence-end-option input[type="radio"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.recurrence-end-option input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Fix calendar icon alignment in recurrence editor */
+.recurrence-end-option .date-input-calendar-button {
+  margin-top: 0;
+}

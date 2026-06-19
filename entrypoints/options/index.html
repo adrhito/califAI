@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Open settings as a full tab: the embedded dialog's header shows the
+         static manifest icon, which cannot be themed at runtime. A real tab
+         shows our dynamically themed favicon instead -->
+    <meta name="manifest.open_in_tab" content="true" />
     <title>Calify Settings</title>
   </head>
   <body>

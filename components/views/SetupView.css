@@ -20,9 +20,11 @@
 
 .setup-title {
   font-size: var(--font-size-2xl);
-  font-weight: 600;
-  color: var(--primary);
+  font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: var(--space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .setup-subtitle {
@@ -49,11 +51,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary);
-  color: white;
-  border-radius: 50%;
-  font-weight: 600;
-  font-size: var(--font-size-sm);
+  background: transparent;
+  color: #7D2E3D !important;
+  border: none;
+  font-weight: 700;
+  font-size: var(--font-size-lg);
 }
 
 .setup-step-content {
@@ -66,6 +68,7 @@
 .setup-step-title {
   font-size: var(--font-size-base);
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .setup-step-description {
@@ -73,12 +76,16 @@
 }
 
 .setup-link {
-  color: var(--primary);
-  text-decoration: none;
+  color: #0066CC !important;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
 }
 
 .setup-link:hover {
-  text-decoration: underline;
+  color: #0052A3 !important;
+  text-decoration-thickness: 3px;
 }
 
 .setup-footer {

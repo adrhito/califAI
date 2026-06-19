@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppState } from '../../hooks/useAppState';
 import SetupView from '../../components/views/SetupView';
 import HomeView from '../../components/views/HomeView';
@@ -12,21 +12,33 @@ import { getSettings } from '../../lib/storage/settings';
 
 export default function App() {
   const { view, hydrate, setView } = useAppState();
+  const [hydrated, setHydrated] = useState(false);
 
   // Hydrate state from storage on mount and check if setup is needed
   useEffect(() => {
     async function init() {
       await hydrate();
 
-      // Check if API key is configured
+      // Check if API key is configured (read the view AFTER hydration -
+      // the closure value is the pre-hydration default)
       const settings = await getSettings();
-      if (!settings.apiKey && view === 'home') {
+      const hasApiKey = settings.geminiApiKey || settings.openaiApiKey;
+      if (!hasApiKey && useAppState.getState().view === 'home') {
         setView('setup');
       }
+
+      setHydrated(true);
     }
 
     init();
   }, []);
+
+  // Don't mount any view until state is restored. Mounting HomeView with the
+  // default pre-hydration state starts a second pending-capture handler that
+  // races the real view's handler and replaces the user's event list
+  if (!hydrated) {
+    return null;
+  }
 
   // View router
   switch (view) {

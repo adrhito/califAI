@@ -1,0 +1,103 @@
+.calendar {
+  background: var(--bg-primary);
+  border: var(--border-width) solid var(--border-color);
+  padding: var(--space-4);
+  border-radius: 0;
+  width: 300px;
+  box-sizing: border-box;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.calendar-month {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+}
+
+.calendar-nav {
+  background: none;
+  border: var(--border-width) solid var(--border-color);
+  color: var(--text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  cursor: pointer;
+  padding: var(--space-1) var(--space-3);
+  transition: all var(--transition-base);
+  line-height: 1;
+}
+
+.calendar-nav:hover {
+  background: var(--border-color);
+  color: var(--bg-primary);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-1);
+  justify-items: center;
+}
+
+.calendar-day-name {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-primary);
+  opacity: 0.6;
+  padding: var(--space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.calendar-day-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day {
+  width: 100%;
+  height: 100%;
+  background: none;
+  border: var(--border-width) solid transparent;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  border-radius: 0;
+  font-family: var(--font-family);
+}
+
+.calendar-day:hover {
+  border-color: var(--border-color);
+}
+
+.calendar-day-today {
+  background: var(--border-color);
+  color: var(--bg-primary);
+}
+
+.calendar-day-selected {
+  border-color: var(--border-color);
+  border-width: 2px;
+  font-weight: 700;
+}
+
+.calendar-day-selected.calendar-day-today {
+  background: var(--border-color);
+  color: var(--bg-primary);
+  border-width: 2px;
+}

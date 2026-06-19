@@ -5,7 +5,8 @@
   padding: var(--space-4);
   min-height: 500px;
   max-height: 600px;
-  overflow-y: auto;
+  overflow-y: overlay;
+  scrollbar-gutter: auto;
 }
 
 .edit-header {

@@ -28,7 +28,8 @@ export default function SetupView() {
       console.log('Starting setup...');
 
       // Save API key and provider
-      await saveSetting('apiKey', apiKey);
+      const keyField = provider === 'gemini' ? 'geminiApiKey' : 'openaiApiKey';
+      await saveSetting(keyField, apiKey);
       await saveSetting('provider', provider);
       console.log('Settings saved');
 

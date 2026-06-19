@@ -15,13 +15,30 @@ export const ReminderSchema = z.object({
   minutes: z.number().int().nonnegative()
 });
 
-export const ConfidenceSchema = z.object({
-  overall: z.number().min(0).max(1),
-  title: z.number().min(0).max(1),
-  date: z.number().min(0).max(1),
-  time: z.number().min(0).max(1),
-  location: z.number().min(0).max(1)
-});
+// Helper to clean AI-generated text fields
+function cleanTextField(text: string | null | undefined): string | undefined {
+  if (!text) return undefined;
+
+  const cleaned = text.trim();
+  if (!cleaned) return undefined;
+
+  // Filter out explanatory text patterns
+  const invalidPatterns = [
+    /\(.*?(no|not|none|null|n\/a|implied|district-wide).*?\)/i,
+    /\(.*?(given|mentioned|specified|provided).*?\)/i,
+    /no (specific )?location/i,
+    /location.*?null/i,
+    /null/i
+  ];
+
+  for (const pattern of invalidPatterns) {
+    if (pattern.test(cleaned)) {
+      return undefined;
+    }
+  }
+
+  return cleaned;
+}
 
 export const CalifyEventSchema = z.object({
   title: z.string().min(1),
@@ -29,15 +46,13 @@ export const CalifyEventSchema = z.object({
   location: z.string().nullable().optional(),
   startDate: z.string(), // ISO datetime
   endDate: z.string(),   // ISO datetime
-  timezone: z.string(),
   isAllDay: z.boolean(),
   recurrence: RecurrenceRuleSchema.nullable().optional(),
-  reminders: z.array(ReminderSchema).nullable().optional(),
-  confidence: ConfidenceSchema.optional()
+  reminders: z.array(ReminderSchema).nullable().optional()
 }).transform(obj => ({
   ...obj,
-  description: obj.description || undefined,
-  location: obj.location || undefined,
+  description: cleanTextField(obj.description),
+  location: cleanTextField(obj.location),
   recurrence: obj.recurrence || undefined,
   reminders: obj.reminders || undefined
 }));

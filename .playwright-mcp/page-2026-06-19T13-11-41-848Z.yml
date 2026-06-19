@@ -1,0 +1,20 @@
+- generic [ref=e3]:
+  - button "Go to Home" [ref=e4] [cursor=pointer]: ×
+  - generic [ref=e5]:
+    - img [ref=e7]
+    - heading "Event Added!" [level=2] [ref=e10]
+    - paragraph [ref=e11]: Your event has been successfully added to Google Calendar
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - button "Share Link" [ref=e15] [cursor=pointer]:
+          - generic [ref=e16]: Share Link
+        - button "Download .ics" [ref=e17] [cursor=pointer]:
+          - generic [ref=e18]: Download .ics
+      - button "View in Calendar" [ref=e19] [cursor=pointer]:
+        - generic [ref=e20]: View in Calendar
+      - button "Add More Events" [ref=e21] [cursor=pointer]:
+        - generic [ref=e22]: Add More Events
+    - generic [ref=e23]:
+      - button "Buy me a coffee" [ref=e24] [cursor=pointer]:
+        - img [ref=e25]
+      - generic [ref=e31]: Buy me a coffee
