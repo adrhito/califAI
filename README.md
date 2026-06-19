@@ -84,4 +84,4 @@ See the full [Privacy Policy](https://adrhito.github.io/califAI/PRIVACY).
 
 ## Support
 
-For bugs or feature requests, [open an issue](https://github.com/adrhito/califAI/issues) or email lennyface2121@gmail.com.
+For bugs or feature requests, [open an issue](https://github.com/adrhito/califAI/issues) or email ahito246@gmail.com.
