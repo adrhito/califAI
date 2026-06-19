@@ -120,4 +120,4 @@ If this policy changes materially, the "Last updated" date at the top will be re
 For privacy questions or concerns, contact:
 
 **Adrian Hito**
-lennyface2121@gmail.com
+ahito246@gmail.com
